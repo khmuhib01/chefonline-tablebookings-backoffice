@@ -10,8 +10,8 @@ import Popup from './../../ui-share/Popup'; // Import the Popup component
 import PageTitle from '../../components/PageTitle';
 
 export default function RestaurantSignIn() {
-	const [email, setEmail] = useState('muhibtoro@gmail.com');
-	const [password, setPassword] = useState('password');
+	const [email, setEmail] = useState('');
+	const [password, setPassword] = useState('');
 	const [passwordVisible, setPasswordVisible] = useState(false);
 	const [emailError, setEmailError] = useState('');
 	const [passwordError, setPasswordError] = useState('');
