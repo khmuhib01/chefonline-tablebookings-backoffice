@@ -35,7 +35,10 @@ const Popup = ({isOpen, title, content, onClose}) => {
 				isOpen ? 'flex' : 'hidden'
 			}`}
 		>
-			<div ref={popupRef} className="bg-white flex flex-col gap-5 text-black mx-auto rounded-lg p-5 shadow-lg relative">
+			<div
+				ref={popupRef}
+				className="bg-white flex flex-col gap-5 text-black mx-auto rounded-lg p-5 shadow-lg relative min-w-[350px]"
+			>
 				<div className="flex items-center justify-between">
 					<h3 className="text-lg font-bold">{title}</h3>
 					{onClose && <MdOutlineCancel size={25} onClick={onClose} className="cursor-pointer" />}

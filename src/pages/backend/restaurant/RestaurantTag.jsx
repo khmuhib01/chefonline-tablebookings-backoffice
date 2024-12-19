@@ -397,9 +397,9 @@ export default function RestaurantTag() {
 					isOpen={addSearchTagPopup.isOpen}
 					onClose={addSearchTagPopup.close}
 					content={
-						<div>
+						<div className="">
 							<form>
-								<label className="block font-medium text-gray-700 min-w-[300px]">Tag Name</label>
+								<label className="block font-medium text-gray-700">Tag Name</label>
 								<InputField
 									type="text"
 									value={tagName}
