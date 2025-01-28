@@ -4,7 +4,7 @@ import {Edit, Delete, DownArrow, UpArrow} from './../../../ui-share/Icon';
 import Popup from '../../../ui-share/Popup';
 import InputField from './../../../ui-share/InputField';
 import ToggleSwitch from './../../../ui-share/ToggleSwitch';
-import {createMenuItem, getMenuCategory} from '../../../api';
+import {createMenuItem, getMenuCategory, restaurantMenuImageOrPdf} from '../../../api';
 import {useSelector} from 'react-redux';
 import toast, {Toaster} from 'react-hot-toast';
 import {useParams, useNavigate} from 'react-router-dom';
@@ -34,6 +34,7 @@ export default function MenuCreate() {
 	const [itemDescription, setItemDescription] = useState('');
 	const [price, setPrice] = useState('');
 	const [selectedItemId, setSelectedItemId] = useState(null);
+	const [uploadedFile, setUploadedFile] = useState(null);
 
 	const storeRestaurantUUID = useSelector((state) => state.user.user.res_uuid);
 
@@ -183,73 +184,163 @@ export default function MenuCreate() {
 		}
 	};
 
-	const renderTabContent = () => (
-		<div className="flex flex-col gap-5">
-			<p className="text-bodyText">Manage your menu and items here.</p>
+	const handleFileUpload = (e) => {
+		const file = e.target.files[0];
+		if (file) {
+			const previewUrl = URL.createObjectURL(file); // Create a preview URL
+			setUploadedFile({
+				file, // Original file
+				preview: previewUrl, // Preview URL
+				type: file.type, // File type (image/pdf)
+			});
+		}
+	};
 
-			{isLoading ? (
-				<div>Loading...</div>
-			) : (
-				<div className="flex flex-col gap-5">
-					{menuCategory?.map((category, index) => (
-						<div key={category.id}>
-							<button
-								onClick={() => handleSetActiveIndex(index)}
-								className={`text-lg flex justify-between items-center w-full bg-white p-3 ${
-									activeIndex === index ? 'font-semibold text-button border-b-2 border-button' : 'text-gray-500'
-								}`}
-							>
-								<div className="flex items-center gap-2">
-									{activeIndex === index ? (
-										<UpArrow size={22} className="text-bodyText" />
-									) : (
-										<DownArrow size={22} className="text-bodyText" />
-									)}
-									{category.name} ({menuItems?.filter((item) => item?.menu_category?.uuid === category.uuid)?.length})
-								</div>
-							</button>
-							{activeIndex === index && (
-								<div className="bg-white p-3 flex flex-col gap-2">
-									{menuItems
-										?.filter((item) => item?.menu_category?.uuid === category.uuid)
-										.map((item) => (
-											<div key={item.id} className="flex items-center justify-between">
-												<div>
-													<p className="text-bodyText font-bold">{item.name}</p>
-													<span className="text-bodyText text-xs">
-														{item.description} - <span className="text-green-600">₹{item.price}</span>
-													</span>
-												</div>
-												<div className="flex gap-2">
-													<Edit size={22} className="text-bodyText" onClick={() => handleEditItem(item)} />
-													<Delete
-														size={22}
-														className="text-bodyText"
-														onClick={() => {
-															setSelectedItemId(item.uuid);
-															setIsDeletePopupOpen(true);
-														}}
-													/>
-												</div>
+	useEffect(() => {
+		return () => {
+			if (uploadedFile) {
+				URL.revokeObjectURL(uploadedFile.preview); // Clean up URL
+			}
+		};
+	}, [uploadedFile]);
+
+	const handleUpload = async () => {
+		setIsLoading(true);
+		const data = {
+			rest_uuid: id,
+			params: 'create',
+			file: uploadedFile.file.name,
+			status: 'active',
+		};
+
+		// console.log('data', data);
+		// return;
+		try {
+			const response = await restaurantMenuImageOrPdf(data);
+			toast.success(response.data.message, {position: 'top-center'});
+			fetchMenuItems();
+		} catch (error) {
+			toast.error('Failed to upload file. Please try again.', {position: 'top-center'});
+		} finally {
+			setIsLoading(false);
+		}
+	};
+
+	const renderTabContent = () => {
+		switch (activeTab) {
+			case 'Menus and Items':
+				return (
+					<div className="flex flex-col gap-5">
+						<p className="text-bodyText">Manage your menu and items here.</p>
+
+						{isLoading ? (
+							<div>Loading...</div>
+						) : (
+							<div className="flex flex-col gap-5">
+								{menuCategory?.map((category, index) => (
+									<div key={category.id}>
+										<button
+											onClick={() => handleSetActiveIndex(index)}
+											className={`text-lg flex justify-between items-center w-full bg-white p-3 ${
+												activeIndex === index ? 'font-semibold text-button border-b-2 border-button' : 'text-gray-500'
+											}`}
+										>
+											<div className="flex items-center gap-2">
+												{activeIndex === index ? (
+													<UpArrow size={22} className="text-bodyText" />
+												) : (
+													<DownArrow size={22} className="text-bodyText" />
+												)}
+												{category.name} (
+												{menuItems?.filter((item) => item?.menu_category?.uuid === category.uuid)?.length})
 											</div>
-										))}
-									<CustomButton
-										text="Add Menu"
-										className="border border-button hover:bg-buttonHover text-button hover:text-white py-2 px-4 rounded-md max-w-[120px]"
-										onClick={() => {
-											setIsAddMenuItemPopupOpen(true);
-											setCategoryId(category.uuid);
-										}}
-										disabled={isLoading}
-									/>
-								</div>
-							)}
+										</button>
+										{activeIndex === index && (
+											<div className="bg-white p-3 flex flex-col gap-2">
+												{menuItems
+													?.filter((item) => item?.menu_category?.uuid === category.uuid)
+													.map((item) => (
+														<div key={item.id} className="flex items-center justify-between">
+															<div>
+																<p className="text-bodyText font-bold">{item.name}</p>
+																<span className="text-bodyText text-xs">
+																	{item.description} - <span className="text-green-600">₹{item.price}</span>
+																</span>
+															</div>
+															<div className="flex gap-2">
+																<Edit size={22} className="text-bodyText" onClick={() => handleEditItem(item)} />
+																<Delete
+																	size={22}
+																	className="text-bodyText"
+																	onClick={() => {
+																		setSelectedItemId(item.uuid);
+																		setIsDeletePopupOpen(true);
+																	}}
+																/>
+															</div>
+														</div>
+													))}
+												<CustomButton
+													text="Add Menu"
+													className="border border-button hover:bg-buttonHover text-button hover:text-white py-2 px-4 rounded-md max-w-[120px]"
+													onClick={() => {
+														setIsAddMenuItemPopupOpen(true);
+														setCategoryId(category.uuid);
+													}}
+													disabled={isLoading}
+												/>
+											</div>
+										)}
+									</div>
+								))}
+							</div>
+						)}
+					</div>
+				);
+			case 'Menu Image or Pdf Upload':
+				return (
+					<div className="flex flex-col gap-5">
+						<h2 className="text-xl font-bold">Upload Menu Images or PDF</h2>
+						<p>Here you can upload images or PDF of your menu items or categories.</p>
+						<div className="flex justify-between gap-5">
+							<input
+								type="file"
+								accept="image/*,application/pdf"
+								className="border p-2 w-full"
+								onChange={(e) => handleFileUpload(e)}
+							/>
+
+							<button
+								className="border border-button hover:bg-buttonHover text-button hover:text-white py-2 px-4 rounded-md"
+								onClick={handleUpload}
+								disabled={isLoading}
+							>
+								{isLoading ? 'Uploading...' : 'Upload'}
+							</button>
 						</div>
-					))}
-				</div>
-			)}
-		</div>
-	);
+
+						{uploadedFile && (
+							<div className="mt-5">
+								{uploadedFile.type.startsWith('image/') ? (
+									<img src={uploadedFile.preview} alt="Uploaded Preview" className="w-48 h-48 object-cover border" />
+								) : (
+									<a
+										href={uploadedFile.preview}
+										target="_blank"
+										rel="noopener noreferrer"
+										className="text-blue-500 underline"
+									>
+										View Uploaded PDF
+									</a>
+								)}
+							</div>
+						)}
+					</div>
+				);
+			default:
+				return null;
+		}
+	};
 
 	const renderPopupForm = ({title, isMenuItem}) => (
 		<Popup
@@ -381,9 +472,19 @@ export default function MenuCreate() {
 							<div className="flex items-center space-x-4 mb-4 overflow-x-scroll sm:overflow-x-hidden border-b">
 								<button
 									onClick={() => setActiveTab('Menus and Items')}
-									className={`text-lg font-semibold text-button border-b-2 border-button`}
+									className={`text-lg font-semibold ${
+										activeTab === 'Menus and Items' ? 'text-button border-b-2 border-button' : 'text-gray-500'
+									}`}
 								>
 									Menus and Items
+								</button>
+								<button
+									onClick={() => setActiveTab('Menu Image or Pdf Upload')}
+									className={`text-lg font-semibold ${
+										activeTab === 'Menu Image' ? 'text-button border-b-2 border-button' : 'text-gray-500'
+									}`}
+								>
+									Menu Image
 								</button>
 							</div>
 							{renderTabContent()}

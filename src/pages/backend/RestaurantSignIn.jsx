@@ -69,6 +69,7 @@ export default function RestaurantSignIn() {
 
 				if (response && response.data && response.data.status) {
 					const userType = response.data.user_type;
+					console.log('userType', userType);
 					login(response, userType);
 
 					// Store token securely
@@ -84,7 +85,8 @@ export default function RestaurantSignIn() {
 
 					// Navigate based on user type
 					if (userType === 'admin') {
-						navigate('/dashboard');
+						setIsPopupOpen(true);
+						setErrorMessage('You are not authorized to access this page.');
 					} else if (userType === 'super_admin') {
 						navigate('/dashboard');
 					} else {

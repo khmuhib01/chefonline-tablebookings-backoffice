@@ -655,6 +655,21 @@ const restaurantGallery = async (data) => {
 	}
 };
 
+const restaurantMenuImageOrPdf = async (data) => {
+	const token = getToken();
+	const headers = {
+		'Content-Type': 'multipart/form-data',
+		Authorization: `Bearer ${token}`,
+	};
+	try {
+		const {data: response} = await api.post('/secure/restaurant-function/menus-photo-upload', data, {headers});
+		return response;
+	} catch (error) {
+		console.error('Error creating restaurant:', error);
+		throw error;
+	}
+};
+
 const totalGuestList = async () => {
 	const token = getToken();
 	const headers = {
@@ -731,4 +746,5 @@ export {
 	restaurantGallery,
 	totalGuestList,
 	totalReservationList,
+	restaurantMenuImageOrPdf,
 };
