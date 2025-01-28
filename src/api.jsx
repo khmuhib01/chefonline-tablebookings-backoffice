@@ -186,27 +186,21 @@ const getReservationListByGuestId = async (guestId) => {
 const getGuestReservationInfo = async (restaurantId) => {
 	const token = getToken();
 
-    console.log('token', token);
+	const headers = {
+		'Content-Type': 'application/json',
+		Authorization: `Bearer ${token}`,
+	};
 
-		const headers = {
-			'Content-Type': 'application/json',
-			Authorization: `Bearer ${token}`,
-		};
+	try {
+		const {data} = await api.get(`secure/restaurant/reservation-for-restaurant?rest_uuid=${restaurantId}&params=info`, {
+			headers,
+		});
 
-		try {
-			const {data} = await api.get(
-				`secure/restaurant/reservation-for-restaurant?rest_uuid=${restaurantId}&params=info`,
-				{
-					headers,
-				}
-			);
-
-			console.log('data', data);
-			return data;
-		} catch (error) {
-			console.error('Error fetching guest reservation info:', error);
-			throw error;
-		}
+		return data;
+	} catch (error) {
+		console.error('Error fetching guest reservation info:', error);
+		throw error;
+	}
 };
 
 const getCheckIn = async (restaurantId, reservationId, checkInTime) => {
@@ -605,10 +599,6 @@ const createMenuItem = async (data) => {
 		Authorization: `Bearer ${token}`,
 	};
 
-	// Logging data for debugging purposes
-	console.log('data', data);
-	console.log('token', token);
-
 	try {
 		// Send POST request
 		const {data: response} = await api.post('/secure/restaurant-function/menus', data, {headers});
@@ -619,7 +609,6 @@ const createMenuItem = async (data) => {
 	}
 };
 
-
 const restaurantUserList = async (data) => {
 	const token = getToken();
 	const headers = {
@@ -627,8 +616,6 @@ const restaurantUserList = async (data) => {
 		Authorization: `Bearer ${token}`,
 	};
 
-	console.log('data', data);
-	console.log('token', token);
 	try {
 		const {data: response} = await api.post('/secure/restaurant/restaurants-users', data, {headers});
 		return response;
@@ -661,6 +648,7 @@ const restaurantMenuImageOrPdf = async (data) => {
 		'Content-Type': 'multipart/form-data',
 		Authorization: `Bearer ${token}`,
 	};
+
 	try {
 		const {data: response} = await api.post('/secure/restaurant-function/menus-photo-upload', data, {headers});
 		return response;
