@@ -38,7 +38,7 @@ export default function ReservationPage() {
 			content: <CheckedInTabComponent restaurantId={id} />,
 		},
 		{
-			label: 'Checked Out',
+			label: 'Check Out',
 			content: <CheckedOutTabComponent restaurantId={id} />,
 		},
 	];

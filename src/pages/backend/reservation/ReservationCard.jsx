@@ -73,7 +73,9 @@ export default function ReservationCard({
 								</p>
 								<p className="text-gray-500 text-sm flex items-center gap-2">
 									<Status size={16} className="text-bodyText" />
-									<span className="text-titleText font-bold text-sm capitalize">{item?.status}</span>
+									<span className="text-titleText font-bold text-sm capitalize">
+										{item?.status === 'pending' ? 'Pending' : item?.status === 'check_in' ? 'Checked in' : 'Completed'}
+									</span>
 								</p>
 							</div>
 						</div>
@@ -99,11 +101,11 @@ export default function ReservationCard({
 										} focus:outline-none flex items-center justify-end gap-2`}
 										onClick={() => handleCheckedIn(item?.uuid)}
 									>
-										Checked in
+										Check in
 										{loadingReservationId === item?.uuid ? <Spinner /> : null}
 									</button>
 								</>
-							) : item?.status === 'checkin' &&
+							) : item?.status === 'check_in' &&
 							  item.reservation_date === formatDate(new Date().toISOString().split('T')[0]) ? (
 								<>
 									<button
@@ -121,7 +123,7 @@ export default function ReservationCard({
 										} focus:outline-none flex items-center justify-end gap-2`}
 										onClick={() => handleCheckedOut(item?.uuid)}
 									>
-										Checked out
+										Check out
 										{loadingReservationId === item?.uuid ? <Spinner /> : null}
 									</button>
 								</>

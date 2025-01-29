@@ -7,13 +7,10 @@ export default function TodayTabComponent({restaurantId}) {
 	const [restaurantInfo, setRestaurantInfo] = useState(null);
 	const [loading, setLoading] = useState(false);
 
-	console.log('restaurantId', restaurantId);
-
 	const fetchGuestReservationInfo = async () => {
 		try {
 			setLoading(true);
 			const response = await getGuestReservationInfo(restaurantId);
-			console.log('response', response);
 			setLoading(false);
 			setRestaurantInfo(response);
 		} catch (error) {
@@ -25,8 +22,6 @@ export default function TodayTabComponent({restaurantId}) {
 		(item) => item?.reservation_date === formatDate(new Date())
 	);
 
-
-    console.log('data', formatDate(new Date()));
 
 	useEffect(() => {
 		if (restaurantId) {
