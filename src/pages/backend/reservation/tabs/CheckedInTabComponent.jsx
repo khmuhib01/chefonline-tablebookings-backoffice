@@ -21,8 +21,6 @@ export default function CheckedInTabComponent({restaurantId}) {
 
 	const checkedInReservation = restaurantInfo?.data?.data.filter((item) => item?.status === 'check_in');
 
-	console.log('checkedInReservation', checkedInReservation);
-
 	useEffect(() => {
 		if (restaurantId) {
 			fetchGuestReservationInfo();

@@ -50,9 +50,6 @@ const Dashboard = () => {
 
 	const today = new Date().toLocaleDateString('en-GB');
 
-	console.log('reservationList', data.reservationList);
-	console.log('user', user);
-
 	// for admin report
 	const todaysReservationForRestaurantAdmin = data.reservationList.filter(
 		(reservation) => reservation?.reservation_date === today && reservation?.restaurant?.uuid === user.res_uuid
@@ -74,8 +71,6 @@ const Dashboard = () => {
 	const totalCustomersForRestaurantsOwnerAdmin = todaysReservationForRestaurantAdmin.reduce((total, reservation) => {
 		return total + parseInt(reservation.number_of_people, 10);
 	}, 0);
-
-	console.log('todaysReservationForRestaurantAdmin', todaysReservationForRestaurantAdmin);
 
 	// Update the reportData based on the userType and other computed values
 	const reportData =

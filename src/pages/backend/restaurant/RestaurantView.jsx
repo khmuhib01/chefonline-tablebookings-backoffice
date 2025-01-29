@@ -19,8 +19,6 @@ export default function RestaurantView() {
 
 	const storeUser = useSelector((state) => state.user.user);
 
-	console.log('restaurantDetails', restaurantDetails);
-
 	const handleRestaurantList = () => {
 		navigate('/dashboard/restaurant-info');
 	};

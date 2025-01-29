@@ -158,7 +158,6 @@ export default function RestaurantEdit() {
 
 		try {
 			const response = await createRestaurant(formData);
-			console.log('response', response);
 			if (response) {
 				toast.success('Restaurant updated successfully!', {position: 'top-center'});
 				navigate('/dashboard/restaurant-info');
@@ -176,8 +175,6 @@ export default function RestaurantEdit() {
 			setIsPopupOpen(true);
 		}
 	};
-
-	console.log('restaurantData', restaurantData);
 
 	useEffect(() => {
 		return () => {

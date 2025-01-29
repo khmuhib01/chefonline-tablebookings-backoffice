@@ -69,7 +69,6 @@ export default function RestaurantSignIn() {
 
 				if (response && response.data && response.data.status) {
 					const userType = response.data.user_type;
-					console.log('userType', userType);
 					login(response, userType);
 
 					// Store token securely

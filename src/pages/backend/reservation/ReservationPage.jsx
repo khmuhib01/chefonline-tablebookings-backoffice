@@ -20,10 +20,6 @@ export default function ReservationPage() {
 	const {isAuthenticated, userType} = useContext(AuthContextRestaurant);
 	const navigate = useNavigate();
 
-	// Debugging logs
-	console.log('storeRestaurantDetails:', storeRestaurantDetails);
-	console.log('id:', id);
-
 	const tabs = [
 		{
 			label: 'Today',

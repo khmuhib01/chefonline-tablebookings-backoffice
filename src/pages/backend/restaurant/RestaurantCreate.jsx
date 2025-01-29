@@ -113,7 +113,6 @@ export default function RestaurantCreate() {
 		formData.append('created_by', storeUser);
 
 		// Log each field in formData to the console
-		console.log('Form Data Contents:');
 		formData.forEach((value, key) => {
 			console.log(`${key}:`, value);
 		});
