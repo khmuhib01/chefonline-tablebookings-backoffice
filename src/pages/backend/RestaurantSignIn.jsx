@@ -84,9 +84,8 @@ export default function RestaurantSignIn() {
 					setPassword('');
 
 					// Navigate based on user type
-					if (userType === 'admin') {
-						setIsPopupOpen(true);
-						setErrorMessage('You are not authorized to access this page.');
+					if (userType === 'admin' || userType === 'staff') {
+						navigate('/dashboard');
 					} else if (userType === 'super_admin') {
 						navigate('/dashboard');
 					} else {

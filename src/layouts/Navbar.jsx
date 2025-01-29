@@ -41,11 +41,24 @@ export default function Navbar() {
 						icon: <BiBookAlt size={25} />,
 						text: 'Availability',
 					},
+					// {
+					// 	to: `/dashboard/review-manage/${userType === 'admin' ? user.res_uuid : storeRestaurantId}`,
+					// 	icon: <BiBookAlt size={25} />,
+					// 	text: 'Review Manage',
+					// },
 					{
-						to: `/dashboard/review-manage/${userType === 'admin' ? user.res_uuid : storeRestaurantId}`,
+						to: `/dashboard/user-create/${userType === 'admin' ? user.res_uuid : storeRestaurantId}`,
 						icon: <BiBookAlt size={25} />,
-						text: 'Review Manage',
+						text: 'User Create',
 					},
+			  ]
+			: userType === 'staff'
+			? [
+					{to: '/dashboard', icon: <BiBookAlt size={25} />, text: 'Dashboard'},
+					{to: '/dashboard/reservation', icon: <BiBookAlt size={25} />, text: 'Reservation'},
+					{to: '/dashboard/capacity', icon: <BiBookAlt size={25} />, text: 'Capacity'},
+					{to: '/dashboard/availability', icon: <BiBookAlt size={25} />, text: 'Availability'},
+					// {to: '/dashboard/review-manage', icon: <BiBookAlt size={25} />, text: 'Review Manage'},
 			  ]
 			: userType === 'super_admin'
 			? [
@@ -134,12 +147,10 @@ export default function Navbar() {
 									<h1 className="text-2xl font-bold">{user.name}</h1>
 									<small>{user.email}</small>
 									<br />
-									{/* <small>{user.uuid}</small> */}
 								</>
 							) : (
 								<>
 									<h1 className="text-2xl font-bold capitalize">{user?.name}</h1>
-									<small>{user?.res_uuid}</small> <br />
 									<small className="text-xl font-bold capitalize">{userType}</small>
 								</>
 							)}

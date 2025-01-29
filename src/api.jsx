@@ -650,7 +650,7 @@ const restaurantMenuImageOrPdf = async (data) => {
 	};
 
 	try {
-		const {data: response} = await api.post('/secure/restaurant-function/menus-photo-upload', data, {headers});
+		const {data: response} = await api.post('/user/menus-photo-upload', data, {headers});
 		return response;
 	} catch (error) {
 		console.error('Error creating restaurant:', error);
