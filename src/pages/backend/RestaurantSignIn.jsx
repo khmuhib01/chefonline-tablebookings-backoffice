@@ -85,8 +85,12 @@ export default function RestaurantSignIn() {
 					// Navigate based on user type
 					if (userType === 'admin' || userType === 'staff') {
 						navigate('/dashboard');
+						// setIsPopupOpen(true);
+						// setErrorMessage("You don't have permission to access this page.");
 					} else if (userType === 'super_admin') {
 						navigate('/dashboard');
+						// setIsPopupOpen(true);
+						// setErrorMessage("You don't have permission to access this page.");
 					} else {
 						navigate('/'); // Default route or home
 					}
