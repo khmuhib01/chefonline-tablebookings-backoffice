@@ -9,20 +9,22 @@ export default function TodayTabComponent({restaurantId}) {
 	const [restaurantInfo, setRestaurantInfo] = useState(null);
 	const [loading, setLoading] = useState(false);
 	const [isPopupOpen, setIsPopupOpen] = useState(false);
+	const [popupType, setPopupType] = useState(null); // "checkin", "checkout", "cancel"
 	const [popupMessage, setPopupMessage] = useState('');
 	const [selectedReservationId, setSelectedReservationId] = useState(null);
+	const [actionLoading, setActionLoading] = useState(false); // Loading only for the action button
 
-	const storeRestaurantDetails = useSelector((state) => state.restaurantDetails?.restaurantDetails?.data);
 	const storeUserId = useSelector((state) => state.user?.user.uuid);
 
 	const fetchGuestReservationInfo = async () => {
 		try {
 			setLoading(true);
 			const response = await getGuestReservationInfo(restaurantId);
-			setLoading(false);
 			setRestaurantInfo(response);
 		} catch (error) {
 			console.error('Error fetching reservation info:', error);
+		} finally {
+			setLoading(false);
 		}
 	};
 
@@ -49,96 +51,83 @@ export default function TodayTabComponent({restaurantId}) {
 		return `${hours}:${minutes}:${seconds}`;
 	};
 
-	const handleCheckedIn = async (uuid) => {
-		const reservationId = uuid;
-		const checkInTime = getFormattedTime();
-		try {
-			await getCheckIn(restaurantId, reservationId, checkInTime);
-			fetchGuestReservationInfo();
-		} catch (error) {
-			console.error('Error checking in:', error);
-		}
-	};
-
-	const handleCheckedOut = async (uuid) => {
-		const reservationId = uuid;
-		const checkedOut = getFormattedTime();
-
-		try {
-			await getCheckedOut(restaurantId, reservationId, checkedOut);
-			fetchGuestReservationInfo();
-		} catch (error) {
-			console.error('Error checking out:', error);
-		}
-	};
-
-	// Open confirmation popup before canceling
-	const handleCancel = (uuid) => {
+	// Open popup before performing an action
+	const openPopup = (uuid, type) => {
 		setSelectedReservationId(uuid);
-		setPopupMessage('Are you sure you want to cancel this reservation?');
+		setPopupType(type);
+		if (type === 'checkin') setPopupMessage('Are you sure you want to check in this reservation?');
+		if (type === 'checkout') setPopupMessage('Are you sure you want to check out this reservation?');
+		if (type === 'cancel') setPopupMessage('Are you sure you want to cancel this reservation?');
 		setIsPopupOpen(true);
 	};
 
-	// Close the cancel confirmation popup
+	// Close popup
 	const handleClosePopup = () => {
 		setIsPopupOpen(false);
+		setPopupType(null);
 		setSelectedReservationId(null);
+		setActionLoading(false);
 	};
 
-	// Confirm and cancel the reservation
-	const handleConfirmCancel = async () => {
-		if (!selectedReservationId) return;
+	// Confirm action based on popupType
+	const handleConfirmAction = async () => {
+		if (!selectedReservationId || !popupType) return;
 
+		setActionLoading(true);
 		try {
-			setLoading(true);
-			await postReservationRemove(restaurantId, selectedReservationId, storeUserId);
-			setLoading(false);
+			if (popupType === 'checkin') {
+				await getCheckIn(restaurantId, selectedReservationId, getFormattedTime());
+			} else if (popupType === 'checkout') {
+				await getCheckedOut(restaurantId, selectedReservationId, getFormattedTime());
+			} else if (popupType === 'cancel') {
+				await postReservationRemove(restaurantId, selectedReservationId, storeUserId);
+			}
 			fetchGuestReservationInfo();
 		} catch (error) {
-			console.error('Error removing reservation:', error);
+			console.error(`Error during ${popupType}:`, error);
 		} finally {
-			handleClosePopup(); // Close the popup after cancellation
+			handleClosePopup(); // Close the popup after action
 		}
-	};
-
-	const handleView = async (uuid) => {
-		setTimeout(() => {
-			setLoading(true);
-			setLoading(false);
-		}, 2000);
 	};
 
 	return (
 		<div>
 			<ReservationCard
 				data={todaysReservation}
-				handleCheckedIn={handleCheckedIn}
-				handleCancel={handleCancel} // Opens the confirmation popup
-				handleView={handleView}
-				handleCheckedOut={handleCheckedOut}
+				handleCheckedIn={(uuid) => openPopup(uuid, 'checkin')} // Opens check-in popup
+				handleCheckedOut={(uuid) => openPopup(uuid, 'checkout')} // Opens check-out popup
+				handleCancel={(uuid) => openPopup(uuid, 'cancel')} // Opens cancel popup
 				isLoading={loading}
 			/>
 
-			{/* Cancel Confirmation Popup */}
+			{/* General Popup for Check-In, Check-Out, and Cancel Actions */}
 			<Popup
 				isOpen={isPopupOpen}
 				onClose={handleClosePopup}
-				title="Cancel Reservation"
+				title={
+					popupType === 'checkin'
+						? 'Check-In Confirmation'
+						: popupType === 'checkout'
+						? 'Check-Out Confirmation'
+						: 'Cancel Reservation'
+				}
 				content={
 					<div className="text-center">
 						<p className="text-gray-700">{popupMessage}</p>
 						<div className="mt-4 flex justify-center gap-4">
 							<button
 								className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded"
-								onClick={handleConfirmCancel}
+								onClick={handleConfirmAction}
+								disabled={actionLoading}
 							>
-								{loading ? 'Loading...' : 'Yes, Cancel'}
+								{actionLoading ? 'Processing...' : 'Yes, Confirm'}
 							</button>
 							<button
 								className="bg-gray-400 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded"
 								onClick={handleClosePopup}
+								disabled={actionLoading} // Prevent interaction during loading
 							>
-								{loading ? 'Loading...' : 'No, Keep It'}
+								No, Keep It
 							</button>
 						</div>
 					</div>
