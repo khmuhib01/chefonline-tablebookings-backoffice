@@ -114,6 +114,30 @@ const getRemoveReservation = async (reservationId) => {
 	}
 };
 
+
+const postReservationRemove = async (restaurantId, reservationId, userId) => {
+	console.log('restaurantId', restaurantId, 'reservationId', reservationId);
+	const token = getToken();
+
+	const headers = {
+		'Content-Type': 'application/json',
+		Authorization: `Bearer ${token}`,
+	};
+
+	try {
+		const {data} = await api.get(
+			`secure/restaurant/reservation-for-restaurant?rest_uuid=${restaurantId}&params=cancel&uuid=${reservationId}&user_uuid=${userId}`,
+			{
+				headers,
+			}
+		);
+		return data;
+	} catch (error) {
+		console.error('Error checking out:', error);
+		throw error;
+	}
+};
+
 const postUserLogin = async (data) => {
 	try {
 		const {data: response} = await api.post('/user/login', data);
@@ -735,4 +759,5 @@ export {
 	totalGuestList,
 	totalReservationList,
 	restaurantMenuImageOrPdf,
+	postReservationRemove,
 };

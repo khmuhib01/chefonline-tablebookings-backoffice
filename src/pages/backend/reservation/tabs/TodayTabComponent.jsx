@@ -1,11 +1,19 @@
 import React, {useEffect, useState} from 'react';
-import {getCheckedOut, getCheckIn, getGuestReservationInfo} from '../../../../api';
+import {getCheckedOut, getCheckIn, getGuestReservationInfo, postReservationRemove} from '../../../../api';
 import {formatDate} from '../../../../utils/conversions';
 import ReservationCard from '../ReservationCard';
+import {useSelector} from 'react-redux';
+import Popup from '../../../../ui-share/Popup';
 
 export default function TodayTabComponent({restaurantId}) {
 	const [restaurantInfo, setRestaurantInfo] = useState(null);
 	const [loading, setLoading] = useState(false);
+	const [isPopupOpen, setIsPopupOpen] = useState(false);
+	const [popupMessage, setPopupMessage] = useState('');
+	const [selectedReservationId, setSelectedReservationId] = useState(null);
+
+	const storeRestaurantDetails = useSelector((state) => state.restaurantDetails?.restaurantDetails?.data);
+	const storeUserId = useSelector((state) => state.user?.user.uuid);
 
 	const fetchGuestReservationInfo = async () => {
 		try {
@@ -21,7 +29,6 @@ export default function TodayTabComponent({restaurantId}) {
 	const todaysReservation = restaurantInfo?.data?.data.filter(
 		(item) => item?.reservation_date === formatDate(new Date())
 	);
-
 
 	useEffect(() => {
 		if (restaurantId) {
@@ -46,7 +53,7 @@ export default function TodayTabComponent({restaurantId}) {
 		const reservationId = uuid;
 		const checkInTime = getFormattedTime();
 		try {
-			const response = await getCheckIn(restaurantId, reservationId, checkInTime);
+			await getCheckIn(restaurantId, reservationId, checkInTime);
 			fetchGuestReservationInfo();
 		} catch (error) {
 			console.error('Error checking in:', error);
@@ -58,15 +65,40 @@ export default function TodayTabComponent({restaurantId}) {
 		const checkedOut = getFormattedTime();
 
 		try {
-			const response = await getCheckedOut(restaurantId, reservationId, checkedOut);
+			await getCheckedOut(restaurantId, reservationId, checkedOut);
 			fetchGuestReservationInfo();
 		} catch (error) {
-			console.error('Error checking in:', error);
+			console.error('Error checking out:', error);
 		}
 	};
 
-	const handleCancel = async (uuid) => {
-		console.log('Handle cancel:', uuid);
+	// Open confirmation popup before canceling
+	const handleCancel = (uuid) => {
+		setSelectedReservationId(uuid);
+		setPopupMessage('Are you sure you want to cancel this reservation?');
+		setIsPopupOpen(true);
+	};
+
+	// Close the cancel confirmation popup
+	const handleClosePopup = () => {
+		setIsPopupOpen(false);
+		setSelectedReservationId(null);
+	};
+
+	// Confirm and cancel the reservation
+	const handleConfirmCancel = async () => {
+		if (!selectedReservationId) return;
+
+		try {
+			setLoading(true);
+			await postReservationRemove(restaurantId, selectedReservationId, storeUserId);
+			setLoading(false);
+			fetchGuestReservationInfo();
+		} catch (error) {
+			console.error('Error removing reservation:', error);
+		} finally {
+			handleClosePopup(); // Close the popup after cancellation
+		}
 	};
 
 	const handleView = async (uuid) => {
@@ -76,17 +108,41 @@ export default function TodayTabComponent({restaurantId}) {
 		}, 2000);
 	};
 
-	const today = formatDate(new Date());
-
 	return (
 		<div>
 			<ReservationCard
 				data={todaysReservation}
 				handleCheckedIn={handleCheckedIn}
-				handleCancel={handleCancel}
+				handleCancel={handleCancel} // Opens the confirmation popup
 				handleView={handleView}
 				handleCheckedOut={handleCheckedOut}
 				isLoading={loading}
+			/>
+
+			{/* Cancel Confirmation Popup */}
+			<Popup
+				isOpen={isPopupOpen}
+				onClose={handleClosePopup}
+				title="Cancel Reservation"
+				content={
+					<div className="text-center">
+						<p className="text-gray-700">{popupMessage}</p>
+						<div className="mt-4 flex justify-center gap-4">
+							<button
+								className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded"
+								onClick={handleConfirmCancel}
+							>
+								{loading ? 'Loading...' : 'Yes, Cancel'}
+							</button>
+							<button
+								className="bg-gray-400 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded"
+								onClick={handleClosePopup}
+							>
+								{loading ? 'Loading...' : 'No, Keep It'}
+							</button>
+						</div>
+					</div>
+				}
 			/>
 		</div>
 	);

@@ -74,7 +74,13 @@ export default function ReservationCard({
 								<p className="text-gray-500 text-sm flex items-center gap-2">
 									<Status size={16} className="text-bodyText" />
 									<span className="text-titleText font-bold text-sm capitalize">
-										{item?.status === 'pending' ? 'Pending' : item?.status === 'check_in' ? 'Checked in' : 'Completed'}
+										{item?.status === 'pending'
+											? 'Pending'
+											: item?.status === 'check_in'
+											? 'Checked in'
+											: item?.status === 'completed'
+											? 'Completed'
+											: item?.status === 'cancelled' && 'Cancelled'}
 									</span>
 								</p>
 							</div>
@@ -84,6 +90,14 @@ export default function ReservationCard({
 							item.reservation_date === formatDate(new Date().toISOString().split('T')[0]) ? (
 								<>
 									<span className="text-titleText font-bold text-sm"></span>
+
+									<button
+										className="border border-green-600 text-green-600 hover:bg-green-600 hover:text-white py-2 px-4 rounded-md flex items-center gap-2"
+										onClick={() => handleView(item?.uuid)}
+									>
+										View
+										{isLoading && <Spinner />}
+									</button>
 									<button
 										className="border border-button text-button hover:bg-buttonHover hover:text-white py-2 px-4 rounded-md flex items-center justify-end gap-2"
 										onClick={() => handleCancel(item?.uuid)}
