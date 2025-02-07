@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, {useState, useEffect, useRef, useContext} from 'react';
 import {useParams, useNavigate} from 'react-router-dom';
 import {useDropzone} from 'react-dropzone';
 import {Cross} from '../../../ui-share/Icon';
@@ -8,6 +8,7 @@ import {createRestaurantUser} from '../../../api';
 import toast, {Toaster} from 'react-hot-toast';
 import Popup from './../../../ui-share/Popup';
 import {useLocation} from 'react-router-dom';
+import {AuthContextRestaurant} from '../../../context/AuthContextRestaurant';
 
 export default function RestaurantUserCreate() {
 	const {id} = useParams();
@@ -29,6 +30,8 @@ export default function RestaurantUserCreate() {
 	const [isPopupOpen, setIsPopupOpen] = useState(false);
 	const [popupContent, setPopupContent] = useState('');
 	const fileInputRef = useRef(null);
+
+	const {isAuthenticated, userType} = useContext(AuthContextRestaurant);
 
 	const navigate = useNavigate();
 	const storeUser = useSelector((state) => state.user.user.uuid);
@@ -187,14 +190,24 @@ export default function RestaurantUserCreate() {
 				<div className="flex flex-col gap-5">
 					<div className="md:flex items-center justify-between space-y-5">
 						<h1 className="text-2xl font-bold leading-none">{rest_name} User Info</h1>
-						<div className="flex items-center space-x-4">
+
+						{isAuthenticated && userType === 'super_admin' && (
+							<button
+								className="bg-button text-white py-2 px-4 rounded hover:bg-buttonHover w-full md:w-auto"
+								onClick={handleRestaurantList} // Corrected this line
+							>
+								Restaurant List
+							</button>
+						)}
+						{/* <div className="flex items-center space-x-4">
 							<button
 								className="bg-button text-white py-2 px-4 rounded hover:bg-buttonHover w-full md:w-auto"
 								onClick={handleRestaurantList}
 							>
 								Restaurant List
 							</button>
-						</div>
+                            
+						</div> */}
 
 						{/* <div className="flex items-center space-x-4">
 									<button

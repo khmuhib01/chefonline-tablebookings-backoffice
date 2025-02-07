@@ -6,6 +6,7 @@ import BackendLayout from './layouts/BackendLayout';
 
 // Pages
 import PageNotFound from './pages/PageNotFound';
+import Unauthorized from './pages/Unauthorized';
 import Dashboard from './pages/backend/Dashboard/Dashboard';
 
 // Backend Pages
@@ -28,13 +29,11 @@ import RestaurantSignUp from './pages/backend/RestaurantSignUp';
 
 // Route Guards
 import RestaurantProtectedRoutes from './utils/RestaurantProtectedRoutes';
+import RoleProtectedRoute from './utils/RoleProtectedRoute';
 import {AuthContextRestaurant} from './context/AuthContextRestaurant';
 
 const AppRoutes = () => {
-	// ✅ Correctly using useContext inside a function component
 	const {isAuthenticated, userType} = useContext(AuthContextRestaurant);
-
-	console.log('userType', userType); // Debugging - Check userType
 
 	return (
 		<Routes>
@@ -56,19 +55,84 @@ const AppRoutes = () => {
 				<Route path="capacity/:id" element={<CapacityPage />} />
 				<Route path="reservation/:id" element={<ReservationPage />} />
 				<Route path="availability/:id" element={<AvailabilityPage />} />
-				<Route path="restaurant-info" element={<RestaurantInfo />} />
-				<Route path="create-restaurant" element={<RestaurantCreate />} />
-				<Route path="edit-restaurant/:id" element={<RestaurantEdit />} />
-				<Route path="restaurant-view/:id" element={<RestaurantView />} />
-				<Route path="restaurant-menu-create/:id" element={<MenuCreate />} />
-				<Route path="restaurant-gallery-create/:id" element={<GalleryCreate />} />
-				<Route path="restaurant-tag/:id" element={<RestaurantTag />} />
-				<Route path="user-create/:id" element={<RestaurantUserCreate />} />
+
+				{/* 🚀 RESTRICTED: Only Super Admin can access this */}
+				<Route
+					path="restaurant-info"
+					element={
+						<RoleProtectedRoute allowedRoles={['super_admin']}>
+							<RestaurantInfo />
+						</RoleProtectedRoute>
+					}
+				/>
+
+				<Route
+					path="create-restaurant"
+					element={
+						<RoleProtectedRoute allowedRoles={['super_admin']}>
+							<RestaurantCreate />
+						</RoleProtectedRoute>
+					}
+				/>
+				<Route
+					path="edit-restaurant/:id"
+					element={
+						<RoleProtectedRoute allowedRoles={['super_admin']}>
+							<RestaurantEdit />
+						</RoleProtectedRoute>
+					}
+				/>
+				<Route
+					path="restaurant-view/:id"
+					element={
+						<RoleProtectedRoute allowedRoles={['super_admin']}>
+							<RestaurantView />
+						</RoleProtectedRoute>
+					}
+				/>
+				<Route
+					path="restaurant-menu-create/:id"
+					element={
+						<RoleProtectedRoute allowedRoles={['super_admin']}>
+							<MenuCreate />
+						</RoleProtectedRoute>
+					}
+				/>
+				<Route
+					path="restaurant-gallery-create/:id"
+					element={
+						<RoleProtectedRoute allowedRoles={['super_admin']}>
+							<GalleryCreate />
+						</RoleProtectedRoute>
+					}
+				/>
+				<Route
+					path="restaurant-tag/:id"
+					element={
+						<RoleProtectedRoute allowedRoles={['super_admin']}>
+							<RestaurantTag />
+						</RoleProtectedRoute>
+					}
+				/>
+
+				{/* 🚀 RESTRICTED: Only Super Admin can access this */}
+				<Route
+					path="user-create/:id"
+					element={
+						<RoleProtectedRoute allowedRoles={['super_admin', 'admin']}>
+							<RestaurantUserCreate />
+						</RoleProtectedRoute>
+					}
+				/>
+
 				<Route path="review-manage/:id" element={<ReviewManage />} />
 				<Route path="*" element={<PageNotFound />} />
 			</Route>
 
-			{/* Fallback Route */}
+			{/* Unauthorized Access Page */}
+			<Route path="/unauthorized" element={<Unauthorized />} />
+
+			{/* Catch-All Fallback Route */}
 			<Route path="*" element={<PageNotFound />} />
 		</Routes>
 	);

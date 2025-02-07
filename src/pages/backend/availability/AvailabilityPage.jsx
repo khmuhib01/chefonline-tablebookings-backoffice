@@ -385,12 +385,21 @@ export default function AvailabilityPage() {
 							<div className="flex justify-between items-center">
 								<h1 className="text-2xl font-bold">{rest_name} Availability</h1>
 								<div className="flex items-center space-x-4">
-									<button
+									{/* <button
 										className="bg-button text-white py-2 px-4 rounded hover:bg-buttonHover w-full md:w-auto"
 										onClick={handleRestaurantList}
 									>
 										Restaurant List
-									</button>
+									</button> */}
+
+									{isAuthenticated && userType === 'super_admin' && (
+										<button
+											className="bg-button text-white py-2 px-4 rounded hover:bg-buttonHover w-full md:w-auto"
+											onClick={handleRestaurantList} // Corrected this line
+										>
+											Restaurant List
+										</button>
+									)}
 								</div>
 							</div>
 

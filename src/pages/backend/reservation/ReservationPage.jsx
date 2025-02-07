@@ -63,7 +63,7 @@ export default function ReservationPage() {
 								{isAuthenticated && userType === 'super_admin' && (
 									<div className="flex items-center space-x-4">
 										<button
-											className="bg-button text-white p-2 rounded-lg hover:bg-buttonHover focus:outline-none focus:ring-2"
+											className="bg-button text-white py-2 px-4 rounded hover:bg-buttonHover w-full md:w-auto"
 											onClick={handleRestaurantList}
 										>
 											Restaurant List
