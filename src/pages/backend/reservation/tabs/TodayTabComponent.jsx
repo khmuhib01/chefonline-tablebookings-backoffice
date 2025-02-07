@@ -20,7 +20,7 @@ export default function TodayTabComponent({restaurantId}) {
 
 	const {logout, userType, user} = useContext(AuthContextRestaurant);
 
-	console.log('userType', userType);
+	// console.log('userType', userType);
 
 	const fetchGuestReservationInfo = async () => {
 		try {

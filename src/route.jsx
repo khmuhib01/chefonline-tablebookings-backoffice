@@ -1,6 +1,4 @@
-// AppRoutes.js
-
-import React from 'react';
+import React, {useContext} from 'react';
 import {Routes, Route} from 'react-router-dom';
 
 // Layouts
@@ -30,43 +28,50 @@ import RestaurantSignUp from './pages/backend/RestaurantSignUp';
 
 // Route Guards
 import RestaurantProtectedRoutes from './utils/RestaurantProtectedRoutes';
+import {AuthContextRestaurant} from './context/AuthContextRestaurant';
 
-const AppRoutes = () => (
-	<Routes>
-		{/* Authentication Routes */}
-		<Route path="/" element={<RestaurantSignIn />} />
-		<Route path="/restaurant-sign-in" element={<RestaurantSignIn />} />
-		{/* <Route path="/restaurant-sign-in" element={<RestaurantSignIn />} /> */}
-		<Route path="/restaurant-sign-up" element={<RestaurantSignUp />} />
+const AppRoutes = () => {
+	// ✅ Correctly using useContext inside a function component
+	const {isAuthenticated, userType} = useContext(AuthContextRestaurant);
 
-		{/* Protected Backend Routes */}
-		<Route
-			path="/dashboard/*"
-			element={
-				<RestaurantProtectedRoutes redirectTo="/restaurant-sign-in">
-					<BackendLayout />
-				</RestaurantProtectedRoutes>
-			}
-		>
-			<Route index element={<Dashboard />} />
-			<Route path="capacity/:id" element={<CapacityPage />} />
-			<Route path="reservation/:id" element={<ReservationPage />} />
-			<Route path="availability/:id" element={<AvailabilityPage />} />
-			<Route path="restaurant-info" element={<RestaurantInfo />} />
-			<Route path="create-restaurant" element={<RestaurantCreate />} />
-			<Route path="edit-restaurant/:id" element={<RestaurantEdit />} />
-			<Route path="restaurant-view/:id" element={<RestaurantView />} />
-			<Route path="restaurant-menu-create/:id" element={<MenuCreate />} />
-			<Route path="restaurant-gallery-create/:id" element={<GalleryCreate />} />
-			<Route path="restaurant-tag/:id" element={<RestaurantTag />} />
-			<Route path="user-create/:id" element={<RestaurantUserCreate />} />
-			<Route path="review-manage/:id" element={<ReviewManage />} />
+	console.log('userType', userType); // Debugging - Check userType
+
+	return (
+		<Routes>
+			{/* Authentication Routes */}
+			<Route path="/" element={<RestaurantSignIn />} />
+			<Route path="/restaurant-sign-in" element={<RestaurantSignIn />} />
+			<Route path="/restaurant-sign-up" element={<RestaurantSignUp />} />
+
+			{/* Protected Backend Routes */}
+			<Route
+				path="/dashboard/*"
+				element={
+					<RestaurantProtectedRoutes redirectTo="/restaurant-sign-in">
+						<BackendLayout />
+					</RestaurantProtectedRoutes>
+				}
+			>
+				<Route index element={<Dashboard />} />
+				<Route path="capacity/:id" element={<CapacityPage />} />
+				<Route path="reservation/:id" element={<ReservationPage />} />
+				<Route path="availability/:id" element={<AvailabilityPage />} />
+				<Route path="restaurant-info" element={<RestaurantInfo />} />
+				<Route path="create-restaurant" element={<RestaurantCreate />} />
+				<Route path="edit-restaurant/:id" element={<RestaurantEdit />} />
+				<Route path="restaurant-view/:id" element={<RestaurantView />} />
+				<Route path="restaurant-menu-create/:id" element={<MenuCreate />} />
+				<Route path="restaurant-gallery-create/:id" element={<GalleryCreate />} />
+				<Route path="restaurant-tag/:id" element={<RestaurantTag />} />
+				<Route path="user-create/:id" element={<RestaurantUserCreate />} />
+				<Route path="review-manage/:id" element={<ReviewManage />} />
+				<Route path="*" element={<PageNotFound />} />
+			</Route>
+
+			{/* Fallback Route */}
 			<Route path="*" element={<PageNotFound />} />
-		</Route>
-
-		{/* Fallback Route */}
-		<Route path="*" element={<PageNotFound />} />
-	</Routes>
-);
+		</Routes>
+	);
+};
 
 export default AppRoutes;
