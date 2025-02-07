@@ -17,7 +17,7 @@ export default function AllTabComponent({restaurantId}) {
 	const filterAllReservations = restaurantInfo?.data?.data?.filter((item) => item.status !== 'hold');
 
 	const handleView = (uuid) => {
-		console.log('Viewing reservation:', uuid);
+		// console.log('Viewing reservation:', uuid);
 	};
 
 	useEffect(() => {

@@ -38,7 +38,7 @@ export default function UpcomingTabComponent({restaurantId}) {
 	};
 
 	const handleView = (uuid) => {
-		console.log(' uuid', uuid);
+		// console.log(' uuid', uuid);
 	};
 
 	const upcomingReservations = restaurantInfo?.data?.data.filter((item) => isFutureDate(item?.reservation_date));

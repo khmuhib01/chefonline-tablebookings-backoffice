@@ -45,7 +45,7 @@ export default function MenuCreate() {
 
 	const storeRestaurantUUID = useSelector((state) => state.user.user.res_uuid);
 
-	console.log('setActiveTab', activeTab);
+	// console.log('setActiveTab', activeTab);
 
 	const fetchMenuCategories = async () => {
 		setIsLoading(true);
@@ -249,7 +249,7 @@ export default function MenuCreate() {
 
 		try {
 			const response = await restaurantMenuImageOrPdf(data);
-			console.log('response', response);
+			// console.log('response', response);
 			toast.success(response.message, {position: 'top-center'});
 			fetchMenuItems();
 			fetchUploadedFiles();
@@ -275,7 +275,7 @@ export default function MenuCreate() {
 			// API call to delete the file
 			await restaurantMenuImageOrPdf(data);
 
-			console.log('deleteImageOrPdfFile', data);
+			// console.log('deleteImageOrPdfFile', data);
 
 			// return;
 

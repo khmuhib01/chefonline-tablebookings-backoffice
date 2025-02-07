@@ -116,7 +116,6 @@ const getRemoveReservation = async (reservationId) => {
 
 
 const postReservationRemove = async (restaurantId, reservationId, userId) => {
-	console.log('restaurantId', restaurantId, 'reservationId', reservationId);
 	const token = getToken();
 
 	const headers = {

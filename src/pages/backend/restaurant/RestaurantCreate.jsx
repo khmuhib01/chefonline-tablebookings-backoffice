@@ -114,7 +114,7 @@ export default function RestaurantCreate() {
 
 		// Log each field in formData to the console
 		formData.forEach((value, key) => {
-			console.log(`${key}:`, value);
+			// console.log(`${key}:`, value);
 		});
 
 		try {
