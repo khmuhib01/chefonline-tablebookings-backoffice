@@ -1,7 +1,7 @@
 import React, {useEffect, useState, useContext} from 'react';
 import {useNavigate, useParams} from 'react-router-dom';
 import {getRestaurantDetails, getRestaurantSearchTagList, restaurantAboutTag, restaurantUserList} from '../../../api';
-import {Edit} from '../../../ui-share/Icon';
+import {Cross, Edit} from '../../../ui-share/Icon';
 import {useSelector} from 'react-redux';
 import {AuthContextRestaurant} from '../../../context/AuthContextRestaurant';
 import PageTitle from '../../../components/PageTitle';
@@ -97,6 +97,10 @@ export default function RestaurantView() {
 
 	const handleDetailEditClick = () => {
 		navigate(`/dashboard/edit-restaurant/${id}`);
+	};
+
+	const handleUserEditClick = () => {
+		navigate(`/dashboard/user-create/${id}`);
 	};
 
 	return (
@@ -222,6 +226,7 @@ export default function RestaurantView() {
 					<div className="border p-4 rounded-md shadow-md bg-white">
 						<div className="flex justify-between items-center mb-4">
 							<h3 className="text-lg font-semibold">Users</h3>
+							<Edit onClick={handleUserEditClick} className="hover:cursor-pointer" />
 						</div>
 						<div className="overflow-x-auto">
 							{loading ? (
@@ -233,6 +238,7 @@ export default function RestaurantView() {
 											<th className="py-2 px-4 border-b text-left text-sm font-semibold text-gray-600">Name</th>
 											<th className="py-2 px-4 border-b text-left text-sm font-semibold text-gray-600">Email</th>
 											<th className="py-2 px-4 border-b text-left text-sm font-semibold text-gray-600">Type</th>
+											<th className="py-2 px-4 border-b text-left text-sm font-semibold text-gray-600">Action</th>
 										</tr>
 									</thead>
 									<tbody>
@@ -241,7 +247,12 @@ export default function RestaurantView() {
 												<tr key={user.id || index}>
 													<td className="py-2 px-4 border-b text-sm text-gray-800">{user.name}</td>
 													<td className="py-2 px-4 border-b text-sm text-gray-800">{user.email}</td>
-													<td className="py-2 px-4 border-b text-sm text-gray-800">{user.user_type}</td>
+													{/* <td className="py-2 px-4 border-b text-sm text-gray-800">
+														<div className="flex gap-2">
+															<Edit className="hover:cursor-pointer hover:text-button" onClick={() => handleUserEditClick(user)}/>
+															<Cross className="hover:cursor-pointer hover:text-button" onClick={() => handleUserDeleteClick(user.id)}/>
+														</div>
+													</td> */}
 												</tr>
 											))
 										) : (
