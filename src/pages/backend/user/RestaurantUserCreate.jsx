@@ -23,7 +23,7 @@ export default function RestaurantUserCreate() {
 		post_code: '',
 		password: '',
 		userType: '',
-		status: 'active',
+		status: '',
 		avatar: null,
 		restaurant_id: id,
 	});
@@ -48,6 +48,12 @@ export default function RestaurantUserCreate() {
 
 	const handleTabChange = (tab) => {
 		setActiveTab(tab);
+	};
+
+	// Handle Input Changes for Edit Form
+	const handleEditInputChange = (e) => {
+		const {name, value} = e.target;
+		setEditUserData({...editUserData, [name]: value});
 	};
 
 	const handleInputChange = (e) => {
@@ -79,11 +85,6 @@ export default function RestaurantUserCreate() {
 		// Password validation
 		if (!userData.password) {
 			newErrors.password = 'Password is required';
-		}
-
-		// Post Code validation
-		if (!userData.post_code) {
-			newErrors.post_code = 'Post Code is required';
 		}
 
 		// User type validation
@@ -138,7 +139,9 @@ export default function RestaurantUserCreate() {
 		formData.append('params', 'create');
 
 		try {
+			console.log('formData', formData);
 			const response = await createRestaurantUser(formData);
+			console.log('response', response);
 			if (response) {
 				toast.success('User created successfully!', {position: 'top-center'});
 				setUserData({
@@ -149,7 +152,7 @@ export default function RestaurantUserCreate() {
 					post_code: '',
 					password: '',
 					userType: '',
-					status: 'active',
+					status: '',
 					avatar: null,
 					restaurant_id: id,
 				});
@@ -300,32 +303,6 @@ export default function RestaurantUserCreate() {
 							/>
 						</div>
 						<div className="flex flex-col w-full">
-							<label htmlFor="address" className="block text-sm font-medium text-gray-700">
-								Address
-							</label>
-							<InputField
-								type="text"
-								name="address"
-								placeholder="Address"
-								value={userData.address}
-								onChange={handleInputChange}
-								error={errors.address}
-							/>
-						</div>
-						<div className="flex flex-col w-full">
-							<label htmlFor="post_code" className="block text-sm font-medium text-gray-700">
-								Post Code <span className="text-red-500">*</span>
-							</label>
-							<InputField
-								type="text"
-								name="post_code"
-								placeholder="Post Code"
-								value={userData.post_code}
-								onChange={handleInputChange}
-								error={errors.post_code}
-							/>
-						</div>
-						<div className="flex flex-col w-full">
 							<label htmlFor="password" className="block text-sm font-medium text-gray-700">
 								Password
 							</label>
@@ -432,9 +409,11 @@ export default function RestaurantUserCreate() {
 						<table className="min-w-full bg-white border border-gray-300">
 							<thead>
 								<tr className="bg-gray-200">
-									<th className="py-2 px-4 border-b text-left text-sm font-semibold text-gray-600">Name</th>
+									<th className="py-2 px-4 border-b text-left text-sm font-semibold text-gray-600">User Name</th>
 									<th className="py-2 px-4 border-b text-left text-sm font-semibold text-gray-600">Email</th>
-									<th className="py-2 px-4 border-b text-left text-sm font-semibold text-gray-600">Type</th>
+									<th className="py-2 px-4 border-b text-left text-sm font-semibold text-gray-600">Phone</th>
+									<th className="py-2 px-4 border-b text-left text-sm font-semibold text-gray-600">User Type</th>
+									<th className="py-2 px-4 border-b text-left text-sm font-semibold text-gray-600">Status</th>
 									<th className="py-2 px-4 border-b text-left text-sm font-semibold text-gray-600">Action</th>
 								</tr>
 							</thead>
@@ -444,16 +423,14 @@ export default function RestaurantUserCreate() {
 										<tr key={user.id || index}>
 											<td className="py-2 px-4 border-b text-sm text-gray-800">{user.name}</td>
 											<td className="py-2 px-4 border-b text-sm text-gray-800">{user.email}</td>
+											<td className="py-2 px-4 border-b text-sm text-gray-800">{user.phone}</td>
 											<td className="py-2 px-4 border-b text-sm text-gray-800">{user.user_type}</td>
+											<td className="py-2 px-4 border-b text-sm text-gray-800">{user.status}</td>
 											<td className="py-2 px-4 border-b text-sm text-gray-800">
-												<div className="flex gap-3">
+												<div className="flex gap-3 justify-end">
 													<Edit
 														className="hover:cursor-pointer hover:buttonHover"
 														onClick={() => handleEditUser(user)}
-													/>
-													<Cross
-														className="hover:cursor-pointer hover:buttonHover"
-														onClick={() => handleDeleteUser(user)}
 													/>
 												</div>
 											</td>
@@ -474,6 +451,8 @@ export default function RestaurantUserCreate() {
 		}
 		return null;
 	};
+
+	// console.log('usedata', userData);
 
 	return (
 		<>
@@ -529,8 +508,8 @@ export default function RestaurantUserCreate() {
 										type="text"
 										name="name"
 										placeholder="Name"
-										value={userData.name}
-										onChange={handleInputChange}
+										value={editUserData.name || ''}
+										onChange={handleEditInputChange}
 										error={errors.name}
 									/>
 								</div>
@@ -542,8 +521,8 @@ export default function RestaurantUserCreate() {
 										type="email"
 										name="email"
 										placeholder="Email"
-										value={userData.email}
-										onChange={handleInputChange}
+										value={editUserData.email}
+										onChange={handleEditInputChange}
 										error={errors.email}
 									/>
 								</div>
@@ -555,35 +534,9 @@ export default function RestaurantUserCreate() {
 										type="text"
 										name="phone"
 										placeholder="Phone"
-										value={userData.phone}
-										onChange={handleInputChange}
+										value={editUserData.phone}
+										onChange={handleEditInputChange}
 										error={errors.phone}
-									/>
-								</div>
-								<div className="flex flex-col w-full">
-									<label htmlFor="address" className="block text-sm font-medium text-gray-700">
-										Address
-									</label>
-									<InputField
-										type="text"
-										name="address"
-										placeholder="Address"
-										value={userData.address}
-										onChange={handleInputChange}
-										error={errors.address}
-									/>
-								</div>
-								<div className="flex flex-col w-full">
-									<label htmlFor="post_code" className="block text-sm font-medium text-gray-700">
-										Post Code <span className="text-red-500">*</span>
-									</label>
-									<InputField
-										type="text"
-										name="post_code"
-										placeholder="Post Code"
-										value={userData.post_code}
-										onChange={handleInputChange}
-										error={errors.post_code}
 									/>
 								</div>
 								<div className="flex flex-col w-full">
@@ -594,8 +547,8 @@ export default function RestaurantUserCreate() {
 										type="text"
 										name="password"
 										placeholder="Password"
-										value={userData.password}
-										onChange={handleInputChange}
+										value={editUserData.password}
+										onChange={handleEditInputChange}
 										error={errors.password}
 									/>
 									<button
@@ -612,8 +565,8 @@ export default function RestaurantUserCreate() {
 									</label>
 									<select
 										name="userType"
-										value={userData.userType}
-										onChange={handleInputChange}
+										value={editUserData.userType}
+										onChange={handleEditInputChange}
 										className={`border rounded p-2 text-base focus:outline-none focus:shadow ${
 											errors.userType ? 'border-red-500' : 'border-gray-300'
 										}`}
@@ -630,8 +583,8 @@ export default function RestaurantUserCreate() {
 									</label>
 									<select
 										name="status"
-										value={userData.status}
-										onChange={handleInputChange}
+										value={editUserData.status}
+										onChange={handleEditInputChange}
 										className={`border rounded p-2 text-base focus:outline-none focus:shadow ${
 											errors.status ? 'border-red-500' : 'border-gray-300'
 										}`}
