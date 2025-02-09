@@ -276,13 +276,13 @@ export default function RestaurantList() {
 																			className="hover:bg-gray-100 px-2 py-1 rounded cursor-pointer"
 																			onClick={() => handleRestaurantAvailabilityCreate(item.uuid, item.name)}
 																		>
-																			Availability
+																			Opening/Closing
 																		</li>
 																		<li
 																			className="hover:bg-gray-100 px-2 py-1 rounded cursor-pointer"
 																			onClick={() => handleRestaurantUserCreate(item.uuid, item.name)}
 																		>
-																			User create
+																			User Manage
 																		</li>
 																		<li
 																			className="hover:bg-gray-100 px-2 py-1 rounded cursor-pointer"

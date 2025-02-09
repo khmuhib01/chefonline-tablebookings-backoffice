@@ -39,7 +39,7 @@ export default function Navbar() {
 					{
 						to: `/dashboard/availability/${userType === 'admin' ? user.res_uuid : storeRestaurantId}`,
 						icon: <BiBookAlt size={25} />,
-						text: 'Availability',
+						text: 'Opening/Closing',
 					},
 					// {
 					// 	to: `/dashboard/review-manage/${userType === 'admin' ? user.res_uuid : storeRestaurantId}`,
@@ -49,7 +49,7 @@ export default function Navbar() {
 					{
 						to: `/dashboard/user-create/${userType === 'admin' ? user.res_uuid : storeRestaurantId}`,
 						icon: <BiBookAlt size={25} />,
-						text: 'User Create',
+						text: 'User Manage',
 					},
 			  ]
 			: userType === 'staff'
