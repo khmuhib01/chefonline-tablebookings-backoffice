@@ -232,9 +232,11 @@ export default function AvailabilityPage() {
 
 	const daysOfWeek = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 	const timeOptions = Array.from({length: 96}, (_, i) => {
-		const hours = String(Math.floor(i / 4)).padStart(2, '0');
+		const hours24 = Math.floor(i / 4);
 		const minutes = String((i % 4) * 15).padStart(2, '0');
-		return `${hours}:${minutes}`;
+		const period = hours24 >= 12 ? 'PM' : 'AM';
+		const hours12 = hours24 % 12 || 12; // Convert 24-hour format to 12-hour format
+		return `${hours12}:${minutes} ${period}`;
 	});
 
 	const availableDays = daysOfWeek.filter((day) => !Object.keys(restaurantTimeSlot).includes(day));
