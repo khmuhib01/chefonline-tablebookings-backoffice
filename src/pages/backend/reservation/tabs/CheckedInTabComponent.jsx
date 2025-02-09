@@ -1,9 +1,10 @@
-import React, {useEffect, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {People, Time} from '../../../../ui-share/Icon';
 import {getCheckedOut, getGuestReservationInfo} from '../../../../api';
 import {formatTime} from '../../../../utils/conversions';
 import ReservationCard from '../ReservationCard';
 import Popup from '../../../../ui-share/Popup'; // Ensure Popup component is correctly imported
+import {AuthContextRestaurant} from '../../../../context/AuthContextRestaurant';
 
 export default function CheckedInTabComponent({restaurantId}) {
 	const [restaurantInfo, setRestaurantInfo] = useState(null);
@@ -11,6 +12,8 @@ export default function CheckedInTabComponent({restaurantId}) {
 	const [isPopupOpen, setIsPopupOpen] = useState(false);
 	const [popupType, setPopupType] = useState(null);
 	const [selectedReservationDetails, setSelectedReservationDetails] = useState(null);
+
+	const {logout, userType, user} = useContext(AuthContextRestaurant);
 
 	// Fetch Checked-In Reservations
 	const fetchGuestReservationInfo = async () => {
@@ -181,36 +184,40 @@ export default function CheckedInTabComponent({restaurantId}) {
 							</table>
 
 							{/* Restaurant Information Section */}
-							<h3 className="text-lg font-bold mt-4 mb-2">Restaurant Information</h3>
-							<table className="w-full border-collapse border border-gray-300">
-								<tbody>
-									<tr>
-										<td className="border p-2 font-semibold">Restaurant Name</td>
-										<td className="border p-2">{selectedReservationDetails?.restaurant?.name}</td>
-									</tr>
-									<tr>
-										<td className="border p-2 font-semibold">Address</td>
-										<td className="border p-2">{selectedReservationDetails?.restaurant?.address}</td>
-									</tr>
-									<tr>
-										<td className="border p-2 font-semibold">Phone</td>
-										<td className="border p-2">{selectedReservationDetails?.restaurant?.phone}</td>
-									</tr>
-									<tr>
-										<td className="border p-2 font-semibold">Website</td>
-										<td className="border p-2">
-											<a
-												href={selectedReservationDetails?.restaurant?.website}
-												target="_blank"
-												rel="noopener noreferrer"
-												className="text-blue-600 underline"
-											>
-												{selectedReservationDetails?.restaurant?.website}
-											</a>
-										</td>
-									</tr>
-								</tbody>
-							</table>
+							{userType === 'superadmin' ? (
+								<>
+									<h3 className="text-lg font-bold mt-4 mb-2">Restaurant Information</h3>
+									<table className="w-full border-collapse border border-gray-300">
+										<tbody>
+											<tr>
+												<td className="border p-2 font-semibold">Restaurant Name</td>
+												<td className="border p-2">{selectedReservationDetails?.restaurant?.name}</td>
+											</tr>
+											<tr>
+												<td className="border p-2 font-semibold">Address</td>
+												<td className="border p-2">{selectedReservationDetails?.restaurant?.address}</td>
+											</tr>
+											<tr>
+												<td className="border p-2 font-semibold">Phone</td>
+												<td className="border p-2">{selectedReservationDetails?.restaurant?.phone}</td>
+											</tr>
+											<tr>
+												<td className="border p-2 font-semibold">Website</td>
+												<td className="border p-2">
+													<a
+														href={selectedReservationDetails?.restaurant?.website}
+														target="_blank"
+														rel="noopener noreferrer"
+														className="text-blue-600 underline"
+													>
+														{selectedReservationDetails?.restaurant?.website}
+													</a>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</>
+							) : null}
 
 							{/* Close Button */}
 							<div className="mt-4 text-center">
