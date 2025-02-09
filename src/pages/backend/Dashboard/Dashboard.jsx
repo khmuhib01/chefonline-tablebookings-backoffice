@@ -202,31 +202,29 @@ const Dashboard = () => {
 								<table className="min-w-full w-full bg-white border border-gray-200">
 									<thead className="bg-gray-100 text-left sticky top-0">
 										<tr>
-											<th className="px-4 py-2 border">Serial No</th>
-											<th className="px-4 py-2 border">Reservation ID</th>
-											<th className="px-4 py-2 border">Customer Name</th>
-											<th className="px-4 py-2 border">Customer Phone</th>
-											<th className="px-4 py-2 border">Customer Email</th>
-											<th className="px-4 py-2 border">Table Number</th>
-											<th className="px-4 py-2 border">Time</th>
-											<th className="px-4 py-2 border">Status</th>
+											<th className="px-4 border">Serial No</th>
+											<th className="px-4 border">Reservation ID</th>
+											<th className="px-4 border">Customer Name</th>
+											<th className="px-4 border">Customer Phone</th>
+											<th className="px-4 border">Customer Email</th>
+											<th className="px-4 border">Table Number</th>
+											<th className="px-4 border">Time</th>
+											<th className="px-4 border">Status</th>
 										</tr>
 									</thead>
 									<tbody>
 										{todaysReservationForRestaurantAdmin.map((reservation, index) => (
 											<tr key={index} className="hover:bg-gray-50">
-												<td className="px-4 py-2 border">{index + 1}</td>
-												<td className="px-4 py-2 border">{reservation.reservation_id}</td>
-												<td className="px-4 py-2 border">
+												<td className="px-4 border">{index + 1}</td>
+												<td className="px-4 border">{reservation.reservation_id}</td>
+												<td className="px-4 border">
 													{reservation.guest_information.first_name} {reservation.guest_information.last_name}
 												</td>
-												<td className="px-4 py-2 border">{reservation.guest_information.phone}</td>
-												<td className="px-4 py-2 border">{reservation.guest_information.email}</td>
-												<td className="px-4 py-2 border">{reservation.table_master.table_name}</td>
-												<td className="px-4 py-2 border">
-													{formatTime(reservation.start)} - {formatTime(reservation.end)}
-												</td>
-												<td className="px-4 py-2 border capitalize">{reservation.status}</td>
+												<td className="px-4 border">{reservation.guest_information.phone}</td>
+												<td className="px-4 border">{reservation.guest_information.email}</td>
+												<td className="px-4 border">{reservation.table_master.table_name}</td>
+												<td className="px-4 border">{formatTime(reservation.start)}</td>
+												<td className="px-4 border capitalize">{reservation.status}</td>
 											</tr>
 										))}
 									</tbody>
@@ -243,33 +241,31 @@ const Dashboard = () => {
 								<table className="min-w-full w-full bg-white border border-gray-200">
 									<thead className="bg-gray-100 text-left sticky top-0">
 										<tr>
-											<th className="px-4 py-2 border">Serial No</th>
-											<th className="px-4 py-2 border">Reservation ID</th>
-											<th className="px-4 py-2 border">Customer Name</th>
-											<th className="px-4 py-2 border">Customer Phone</th>
-											<th className="px-4 py-2 border">Customer Email</th>
-											<th className="px-4 py-2 border">Table Number</th>
-											<th className="px-4 py-2 border">Date</th>
-											<th className="px-4 py-2 border">Time</th>
-											<th className="px-4 py-2 border">Status</th>
+											<th className="px-4 border">Serial No</th>
+											<th className="px-4 border">Reservation ID</th>
+											<th className="px-4 border">Customer Name</th>
+											<th className="px-4 border">Customer Phone</th>
+											<th className="px-4 border">Customer Email</th>
+											<th className="px-4 border">Table Number</th>
+											<th className="px-4 border">Date</th>
+											<th className="px-4 border">Time</th>
+											<th className="px-4 border">Status</th>
 										</tr>
 									</thead>
 									<tbody>
 										{upcomingReservationsForRestaurantsAdmin.map((reservation, index) => (
 											<tr key={index} className="hover:bg-gray-50">
-												<td className="px-4 py-2 border">{index + 1}</td>
-												<td className="px-4 py-2 border">{reservation.reservation_id}</td>
-												<td className="px-4 py-2 border">
+												<td className="px-4 border">{index + 1}</td>
+												<td className="px-4 border">{reservation.reservation_id}</td>
+												<td className="px-4 border">
 													{reservation.guest_information.first_name} {reservation.guest_information.last_name}
 												</td>
-												<td className="px-4 py-2 border">{reservation.guest_information.phone}</td>
-												<td className="px-4 py-2 border">{reservation.guest_information.email}</td>
-												<td className="px-4 py-2 border">{reservation.table_master.table_name}</td>
-												<td className="px-4 py-2 border">{reservation.reservation_date}</td>
-												<td className="px-4 py-2 border">
-													{formatTime(reservation.start)} - {formatTime(reservation.end)}
-												</td>
-												<td className="px-4 py-2 border capitalize">{reservation.status}</td>
+												<td className="px-4 border">{reservation.guest_information.email}</td>
+												<td className="px-4 border">{reservation.guest_information.phone}</td>
+												<td className="px-4 border">{reservation.table_master.table_name}</td>
+												<td className="px-4 border">{reservation.reservation_date}</td>
+												<td className="px-4 border">{formatTime(reservation.start)}</td>
+												<td className="px-4 border capitalize">{reservation.status}</td>
 											</tr>
 										))}
 									</tbody>
