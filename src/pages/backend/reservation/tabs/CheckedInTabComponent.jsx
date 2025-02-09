@@ -184,7 +184,7 @@ export default function CheckedInTabComponent({restaurantId}) {
 							</table>
 
 							{/* Restaurant Information Section */}
-							{userType === 'superadmin' ? (
+							{userType === 'super_admin' ? (
 								<>
 									<h3 className="text-lg font-bold mt-4 mb-2">Restaurant Information</h3>
 									<table className="w-full border-collapse border border-gray-300">
