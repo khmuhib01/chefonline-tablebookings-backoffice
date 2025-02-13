@@ -123,11 +123,11 @@ export default function TodayTabComponent({restaurantId}) {
 	};
 
 	const handleAccept = (uuid) => {
-		console.log('uuid accept', uuid);
+		// console.log('uuid accept', uuid);
 	};
 
 	const handleReject = (uuid) => {
-		console.log('uuid reject', uuid);
+		// console.log('uuid reject', uuid);
 	};
 
 	return (

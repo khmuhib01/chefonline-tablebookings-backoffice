@@ -38,8 +38,6 @@ export default function RestaurantList() {
 	const startIndex = (currentPage - 1) * itemsPerPage;
 	const paginatedData = filteredData.slice(startIndex, startIndex + itemsPerPage);
 
-	console.log('paginatedData', paginatedData);
-
 	const totalPages = Math.ceil(filteredData.length / itemsPerPage);
 
 	const handleNextPage = () => {

@@ -250,7 +250,6 @@ export default function RestaurantTag() {
 				uuid: tagToDelete,
 			};
 			const response = await restaurantAboutTag(data);
-			console.log('response', response);
 			setLoading(false); // Clear loading state after deleting about tags
 			if (response) {
 				toast.success(response?.data?.message, {position: 'top-center'});

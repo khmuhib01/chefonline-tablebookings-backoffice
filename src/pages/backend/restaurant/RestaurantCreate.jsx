@@ -136,7 +136,6 @@ export default function RestaurantCreate() {
 		formData.append('created_by', storeUser);
 
 		try {
-			console.log('restaurantData', restaurantData);
 			// return;
 			const response = await createRestaurant(formData);
 			if (response) {
