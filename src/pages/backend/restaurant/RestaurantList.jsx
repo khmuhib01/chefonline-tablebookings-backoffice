@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {VerticalMenu} from '../../../ui-share/Icon';
+import {Menu, OptionMenu, VerticalMenu} from '../../../ui-share/Icon';
 import {NavLink, useNavigate} from 'react-router-dom';
 import {getRestaurantList} from '../../../api';
 import {useSelector, useDispatch} from 'react-redux';
@@ -236,8 +236,9 @@ export default function RestaurantList() {
 													</td>
 													<td className="px-4 py-2 border">
 														<div className="relative">
-															<VerticalMenu
+															<OptionMenu
 																className="cursor-pointer float-end"
+																size={20}
 																onClick={(e) => {
 																	e.stopPropagation();
 																	toggleDropdown(item.id);

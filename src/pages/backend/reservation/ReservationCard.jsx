@@ -82,7 +82,19 @@ export default function ReservationCard({
 								</p>
 								<p className="text-gray-500 text-sm flex items-center gap-2">
 									<Status size={16} className="text-bodyText" />
-									<span className="text-titleText font-bold text-sm capitalize">
+									<span
+										className={`${
+											item.status === 'pending'
+												? 'text-blue-600'
+												: item.status === 'check_in'
+												? 'text-amber-600'
+												: item.status === 'completed'
+												? 'text-green-500'
+												: item.status === 'cancelled'
+												? 'text-red-500'
+												: item.status === 'confirmed' && 'text-green-600'
+										} font-bold text-sm capitalize`}
+									>
 										{item?.status === 'pending'
 											? 'Pending'
 											: item?.status === 'check_in'

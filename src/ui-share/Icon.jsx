@@ -30,6 +30,7 @@ import {FaPlaneArrival} from 'react-icons/fa';
 import {FaUserCheck} from 'react-icons/fa';
 import {FiUserPlus} from 'react-icons/fi';
 import {CiMenuFries} from 'react-icons/ci';
+import {RiMenuAddFill} from 'react-icons/ri';
 
 export const Calendar = CalendarIcon;
 export const People = FaPeopleGroup;
@@ -63,3 +64,4 @@ export const NearBy = FaPlaneArrival;
 export const SignIn = FaUserCheck;
 export const SignUp = FiUserPlus;
 export const Menu = CiMenuFries;
+export const OptionMenu = RiMenuAddFill;
