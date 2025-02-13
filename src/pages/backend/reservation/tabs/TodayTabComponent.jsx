@@ -1,5 +1,12 @@
 import React, {useContext, useEffect, useState} from 'react';
-import {getCheckedOut, getCheckIn, getGuestReservationInfo, postReservationRemove} from '../../../../api';
+import {
+	getCheckedOut,
+	getCheckIn,
+	getGuestReservationInfo,
+	postReservationRemove,
+	getAccept,
+	getReject,
+} from '../../../../api';
 import {formatDate} from '../../../../utils/conversions';
 import ReservationCard from '../ReservationCard';
 import {useSelector} from 'react-redux';
@@ -20,7 +27,7 @@ export default function TodayTabComponent({restaurantId}) {
 
 	const {logout, userType, user} = useContext(AuthContextRestaurant);
 
-	console.log('userType', userType);
+	// console.log('userType', userType);
 
 	// console.log('userType', userType);
 
@@ -66,6 +73,8 @@ export default function TodayTabComponent({restaurantId}) {
 		if (type === 'checkin') setPopupMessage('Are you sure you want to check in this reservation?');
 		if (type === 'checkout') setPopupMessage('Are you sure you want to check out this reservation?');
 		if (type === 'cancel') setPopupMessage('Are you sure you want to cancel this reservation?');
+		if (type === 'accept') setPopupMessage('Are you sure you want to accept this reservation?');
+		if (type === 'reject') setPopupMessage('Are you sure you want to reject this reservation?');
 		setIsPopupOpen(true);
 	};
 
@@ -90,12 +99,16 @@ export default function TodayTabComponent({restaurantId}) {
 				await getCheckedOut(restaurantId, selectedReservationId, getFormattedTime());
 			} else if (popupType === 'cancel') {
 				await postReservationRemove(restaurantId, selectedReservationId, storeUserId);
+			} else if (popupType === 'accept') {
+				await getAccept(restaurantId, selectedReservationId, storeUserId);
+			} else if (popupType === 'reject') {
+				await getReject(restaurantId, selectedReservationId, storeUserId);
 			}
 			fetchGuestReservationInfo();
 		} catch (error) {
 			console.error(`Error during ${popupType}:`, error);
 		} finally {
-			handleClosePopup(); // Close the popup after action
+			handleClosePopup();
 		}
 	};
 
@@ -109,15 +122,27 @@ export default function TodayTabComponent({restaurantId}) {
 		}
 	};
 
+	const handleAccept = (uuid) => {
+		console.log('uuid accept', uuid);
+	};
+
+	const handleReject = (uuid) => {
+		console.log('uuid reject', uuid);
+	};
+
 	return (
 		<div>
 			<ReservationCard
 				data={todaysReservation}
-				handleCheckedIn={(uuid) => openPopup(uuid, 'checkin')} // Opens check-in popup
-				handleCheckedOut={(uuid) => openPopup(uuid, 'checkout')} // Opens check-out popup
-				handleCancel={(uuid) => openPopup(uuid, 'cancel')} // Opens cancel popup
+				handleCheckedIn={(uuid) => openPopup(uuid, 'checkin')}
+				handleCheckedOut={(uuid) => openPopup(uuid, 'checkout')}
+				handleCancel={(uuid) => openPopup(uuid, 'cancel')}
+				handleAccept={(uuid) => openPopup(uuid, 'accept')}
+				handleReject={(uuid) => openPopup(uuid, 'reject')}
+				// handleAccept={handleAccept}
+				// handleReject={handleReject}
 				isLoading={loading}
-				handleView={handleView} // Opens view popup
+				handleView={handleView}
 			/>
 
 			{/* General Popup for Check-In, Check-Out, and Cancel Actions */}
@@ -129,7 +154,13 @@ export default function TodayTabComponent({restaurantId}) {
 						? 'Check-In Confirmation'
 						: popupType === 'checkout'
 						? 'Check-Out Confirmation'
-						: 'Cancel Reservation'
+						: popupType === 'cancel'
+						? 'Cancel Confirmation'
+						: popupType === 'accept'
+						? 'Accept Confirmation'
+						: popupType === 'reject'
+						? 'Reject Confirmation'
+						: null
 				}
 				content={
 					<div className="text-center">

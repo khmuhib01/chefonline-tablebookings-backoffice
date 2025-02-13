@@ -47,7 +47,7 @@ export default function AvailabilityPage() {
 	const handleAddHours = () => {
 		setFormData({day: '', start: '', end: ''});
 		setSelectedDays([]);
-		setTimeRanges([{start: '00:00', end: '01:00', uuid: null}]); // Initialize with no uuid
+		setTimeRanges([{start: '00:00', end: '01:00', uuid: null}]);
 		addHoursPopup.open();
 	};
 
@@ -286,20 +286,46 @@ export default function AvailabilityPage() {
 		}
 	};
 
+	const convertTo24HourFormat = (time) => {
+		// Convert "hh:mm AM/PM" to "HH:mm" (24-hour format)
+		const [timePart, modifier] = time.split(' ');
+		let [hours, minutes] = timePart.split(':');
+
+		if (modifier === 'PM' && hours !== '12') {
+			hours = String(parseInt(hours, 10) + 12);
+		} else if (modifier === 'AM' && hours === '12') {
+			hours = '00'; // Midnight case
+		}
+
+		return `${hours.padStart(2, '0')}:${minutes}`;
+	};
+
 	const createApiData = (selectedDays, timeRanges) => {
 		const apiData = selectedDays
 			.map((day) => {
-				return timeRanges.map((range) => ({
-					day: day.toLowerCase(),
-					rest_uuid: id,
-					slot_start: range.start,
-					slot_end: range.end,
-					interval_time: 15,
-					status: 'active',
-					uuid: range.uuid, // Include the uuid in the API data
-				}));
+				return timeRanges.map((range) => {
+					const start24 = convertTo24HourFormat(range.start);
+					const end24 = convertTo24HourFormat(range.end);
+
+					// Ensure end time is valid and <= 24:00
+					if (timeStringToMinutes(end24) > 1440) {
+						toast.error('End time cannot be after 24:00.', {position: 'top-center'});
+						return null;
+					}
+
+					return {
+						day: day.toLowerCase(),
+						rest_uuid: id,
+						slot_start: start24,
+						slot_end: end24,
+						interval_time: 15,
+						status: 'active',
+						uuid: range.uuid,
+					};
+				});
 			})
-			.flat();
+			.flat()
+			.filter(Boolean); // Remove null values (invalid times)
 
 		return apiData;
 	};
@@ -387,13 +413,6 @@ export default function AvailabilityPage() {
 							<div className="flex justify-between items-center">
 								<h1 className="text-2xl font-bold">{rest_name} Availability</h1>
 								<div className="flex items-center space-x-4">
-									{/* <button
-										className="bg-button text-white py-2 px-4 rounded hover:bg-buttonHover w-full md:w-auto"
-										onClick={handleRestaurantList}
-									>
-										Restaurant List
-									</button> */}
-
 									{isAuthenticated && userType === 'super_admin' && (
 										<button
 											className="bg-button text-white py-2 px-4 rounded hover:bg-buttonHover w-full md:w-auto"

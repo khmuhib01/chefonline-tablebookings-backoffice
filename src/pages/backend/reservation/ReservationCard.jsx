@@ -8,10 +8,13 @@ export default function ReservationCard({
 	handleCheckedIn,
 	handleCancel,
 	handleCheckedOut,
+	handleAccept,
+	handleReject,
 	handleView,
 	isLoading,
 	loadingReservationId,
 }) {
+	// console.log('data', data);
 	return (
 		<div className="w-full">
 			{data.length === 0 ? (
@@ -86,7 +89,9 @@ export default function ReservationCard({
 											? 'Checked In'
 											: item?.status === 'completed'
 											? 'Completed'
-											: item?.status === 'cancelled' && 'Cancelled'}
+											: item?.status === 'cancelled'
+											? 'Cancelled'
+											: item?.status === 'confirmed' && 'Confirmed'}
 									</span>
 								</p>
 							</div>
@@ -102,7 +107,7 @@ export default function ReservationCard({
 							</button>
 
 							{/* Actions based on Reservation Status */}
-							{item?.status === 'pending' &&
+							{item?.status === 'confirmed' &&
 							item.reservation_date === formatDate(new Date().toISOString().split('T')[0]) ? (
 								<>
 									<button
@@ -113,7 +118,7 @@ export default function ReservationCard({
 										{loadingReservationId === item?.uuid ? <Spinner /> : null}
 									</button>
 									<button
-										className="border bg-blue-200 text-blue-600 hover:bg-blue-600 hover:text-white py-2 px-4 rounded-md flex items-center justify-center"
+										className="border bg-blue-200 text-blue-600 hover:bg-blue-600 border-blue-600 hover:text-white py-2 px-4 rounded-md flex items-center justify-center"
 										onClick={() => handleCheckedIn(item?.uuid)}
 									>
 										Check In
@@ -128,6 +133,24 @@ export default function ReservationCard({
 										onClick={() => handleCheckedOut(item?.uuid)}
 									>
 										Check Out
+										{loadingReservationId === item?.uuid ? <Spinner /> : null}
+									</button>
+								</>
+							) : item?.status === 'pending' &&
+							  item.reservation_date === formatDate(new Date().toISOString().split('T')[0]) ? (
+								<>
+									<button
+										className="border border-green-600 bg-green-100 text-green-600 hover:bg-green-600 hover:text-white py-2 px-4 rounded-md flex items-center justify-center"
+										onClick={() => handleAccept(item?.uuid)}
+									>
+										Accept
+										{loadingReservationId === item?.uuid ? <Spinner /> : null}
+									</button>
+									<button
+										className="border border-red-600 bg-red-100 text-red-600 hover:bg-red-600 hover:text-white py-2 px-4 rounded-md flex items-center justify-center"
+										onClick={() => handleReject(item?.uuid)}
+									>
+										Reject
 										{loadingReservationId === item?.uuid ? <Spinner /> : null}
 									</button>
 								</>

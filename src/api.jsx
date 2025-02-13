@@ -114,29 +114,6 @@ const getRemoveReservation = async (reservationId) => {
 	}
 };
 
-
-const postReservationRemove = async (restaurantId, reservationId, userId) => {
-	const token = getToken();
-
-	const headers = {
-		'Content-Type': 'application/json',
-		Authorization: `Bearer ${token}`,
-	};
-
-	try {
-		const {data} = await api.get(
-			`secure/restaurant/reservation-for-restaurant?rest_uuid=${restaurantId}&params=cancel&uuid=${reservationId}&user_uuid=${userId}`,
-			{
-				headers,
-			}
-		);
-		return data;
-	} catch (error) {
-		console.error('Error checking out:', error);
-		throw error;
-	}
-};
-
 const postUserLogin = async (data) => {
 	try {
 		const {data: response} = await api.post('/user/login', data);
@@ -226,6 +203,28 @@ const getGuestReservationInfo = async (restaurantId) => {
 	}
 };
 
+const postReservationRemove = async (restaurantId, reservationId, userId) => {
+	const token = getToken();
+
+	const headers = {
+		'Content-Type': 'application/json',
+		Authorization: `Bearer ${token}`,
+	};
+
+	try {
+		const {data} = await api.get(
+			`secure/restaurant/reservation-for-restaurant?rest_uuid=${restaurantId}&params=cancel&uuid=${reservationId}&user_uuid=${userId}`,
+			{
+				headers,
+			}
+		);
+		return data;
+	} catch (error) {
+		console.error('Error checking out:', error);
+		throw error;
+	}
+};
+
 const getCheckIn = async (restaurantId, reservationId, checkInTime) => {
 	const token = getToken();
 
@@ -237,6 +236,57 @@ const getCheckIn = async (restaurantId, reservationId, checkInTime) => {
 	try {
 		const {data} = await api.get(
 			`secure/restaurant/reservation-for-restaurant?rest_uuid=${restaurantId}&params=checkin&checkin_time=${checkInTime}&uuid=${reservationId}`,
+			{
+				headers,
+			}
+		);
+		return data;
+	} catch (error) {
+		console.error('Error checking in:', error);
+		throw error;
+	}
+};
+
+const getAccept = async (restaurantId, reservationId, userId) => {
+	const token = getToken();
+
+	console.log('token', token);
+
+	console.log('restaurantId', restaurantId);
+	console.log('reservationId', reservationId);
+	console.log('userId', userId);
+
+	const headers = {
+		'Content-Type': 'application/json',
+		Authorization: `Bearer ${token}`,
+	};
+
+	try {
+		const {data} = await api.get(
+			`secure/restaurant/reservation-for-restaurant?rest_uuid=${restaurantId}&params=accept&uuid=${reservationId}&user_uuid=${userId}`,
+			{
+				headers,
+			}
+		);
+		console.log('data', data);
+		return data;
+	} catch (error) {
+		console.error('Error checking in:', error);
+		throw error;
+	}
+};
+
+const getReject = async (restaurantId, reservationId, userId) => {
+	const token = getToken();
+
+	const headers = {
+		'Content-Type': 'application/json',
+		Authorization: `Bearer ${token}`,
+	};
+
+	try {
+		const {data} = await api.get(
+			`secure/restaurant/reservation-for-restaurant?rest_uuid=${restaurantId}&params=reject&uuid=${reservationId}&user_uuid=${userId}`,
 			{
 				headers,
 			}
@@ -727,6 +777,8 @@ export {
 	postGuestLogout,
 	getGuestReservationInfo,
 	getCheckIn,
+	getAccept,
+	getReject,
 	getCheckedOut,
 	getRemoveReservation,
 	getReservationListByGuestId,
