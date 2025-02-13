@@ -190,6 +190,7 @@ export default function RestaurantList() {
 											<th className="px-4 py-2 border">Address</th>
 											<th className="px-4 py-2 border">Postcode</th>
 											<th className="px-4 py-2 border">Category</th>
+											<th className="px-4 py-2 border">Reservation type</th>
 											<th className="px-4 py-2 border">Status</th>
 											<th className="px-4 py-2 border">Actions</th>
 										</tr>
@@ -223,6 +224,7 @@ export default function RestaurantList() {
 													<td className="px-4 py-2 border">
 														{item.category_list && item?.category_list?.name ? item?.category_list?.name : 'N/A'}
 													</td>
+													<td className="px-4 py-2 border capitalize">{item.reservation_status || 'N/A'}</td>
 													<td className="px-4 py-2 border text-center">
 														<span
 															className={`px-2 py-1 rounded-full text-white text-xs ${

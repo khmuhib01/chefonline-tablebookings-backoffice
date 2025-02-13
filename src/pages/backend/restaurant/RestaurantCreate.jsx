@@ -19,8 +19,9 @@ export default function RestaurantCreate() {
 		address: '',
 		post_code: '',
 		category: '',
-		status: 'active',
+		status: '',
 		avatar: null,
+		reservation_status: '',
 	});
 	const [categoryData, setCategoryData] = useState([]);
 	const [errors, setErrors] = useState({});
@@ -68,8 +69,29 @@ export default function RestaurantCreate() {
 			newErrors.phone = 'Phone number must be 11 digits';
 		}
 		if (!restaurantData.post_code) newErrors.post_code = 'Post code is required';
+		if (!restaurantData.reservation_status)
+			newErrors.reservation_status = 'Please select a reservation acceptance type'; // <-- Validation for auto/manual accept
 		return newErrors;
 	};
+
+	// const validateFields = () => {
+	// 	const newErrors = {};
+	// 	if (!restaurantData.name) newErrors.name = 'Restaurant name is required';
+	// 	const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+	// 	if (!restaurantData.email) {
+	// 		newErrors.email = 'Email is required';
+	// 	} else if (!emailPattern.test(restaurantData.email)) {
+	// 		newErrors.email = 'Enter a valid email';
+	// 	}
+	// 	const phonePattern = /^\d{11}$/;
+	// 	if (!restaurantData.phone) {
+	// 		newErrors.phone = 'Phone number is required';
+	// 	} else if (!phonePattern.test(restaurantData.phone)) {
+	// 		newErrors.phone = 'Phone number must be 11 digits';
+	// 	}
+	// 	if (!restaurantData.post_code) newErrors.post_code = 'Post code is required';
+	// 	return newErrors;
+	// };
 
 	const onSingleDrop = (acceptedFiles) => {
 		const file = acceptedFiles[0];
@@ -95,7 +117,7 @@ export default function RestaurantCreate() {
 			return;
 		}
 
-		setLoading(true); // Start loading spinner
+		setLoading(true);
 
 		const formData = new FormData();
 		formData.append('name', restaurantData.name);
@@ -106,18 +128,15 @@ export default function RestaurantCreate() {
 		formData.append('post_code', restaurantData.post_code);
 		formData.append('category', restaurantData.category);
 		formData.append('status', restaurantData.status);
+		formData.append('reservation_status', restaurantData.reservation_status); // <-- Added field for submission
 		formData.append('avatar', restaurantData.avatar);
-
 		formData.append('uuid', storeRestaurantUUID);
 		formData.append('params', 'create');
 		formData.append('created_by', storeUser);
 
-		// Log each field in formData to the console
-		formData.forEach((value, key) => {
-			// console.log(`${key}:`, value);
-		});
-
 		try {
+			console.log('restaurantData', restaurantData);
+			// return;
 			const response = await createRestaurant(formData);
 			if (response) {
 				toast.success('Restaurant created successfully!', {position: 'top-center'});
@@ -131,6 +150,7 @@ export default function RestaurantCreate() {
 					category: '',
 					status: '',
 					avatar: null,
+					reservation_status: '',
 				});
 			} else {
 				toast.error('Failed to create restaurant', {position: 'top-center'});
@@ -143,65 +163,9 @@ export default function RestaurantCreate() {
 			setPopupContent(errorMessages || 'An error occurred while creating the restaurant.');
 			setIsPopupOpen(true);
 		} finally {
-			setLoading(false); // Stop loading spinner
+			setLoading(false);
 		}
 	};
-
-	// const handleSubmit = async (e) => {
-	// 	e.preventDefault();
-	// 	const validationErrors = validateFields();
-	// 	if (Object.keys(validationErrors).length > 0) {
-	// 		setErrors(validationErrors);
-	// 		return;
-	// 	}
-
-	// 	setLoading(true);
-
-	// 	const formData = new FormData();
-	// 	formData.append('name', restaurantData.name);
-	// 	formData.append('email', restaurantData.email);
-	// 	formData.append('phone', restaurantData.phone);
-	// 	formData.append('website', restaurantData.website);
-	// 	formData.append('address', restaurantData.address);
-	// 	formData.append('post_code', restaurantData.post_code);
-	// 	formData.append('category', restaurantData.category);
-	// 	formData.append('status', restaurantData.status);
-	// 	formData.append('avatar', restaurantData.avatar);
-
-	// 	formData.append('uuid', storeRestaurantUUID);
-	// 	formData.append('params', 'create');
-	// 	formData.append('created_by', storeUser);
-
-	// 	try {
-	// 		console.log('formData', formData);
-	// 		const response = await createRestaurant(formData);
-	// 		if (response) {
-	// 			toast.success('Restaurant created successfully!', {position: 'top-center'});
-	// 			setRestaurantData({
-	// 				name: '',
-	// 				email: '',
-	// 				phone: '',
-	// 				website: '',
-	// 				address: '',
-	// 				post_code: '',
-	// 				category: '',
-	// 				status: '',
-	// 				avatar: null,
-	// 			});
-	// 		} else {
-	// 			toast.error('Failed to create restaurant', {position: 'top-center'});
-	// 		}
-	// 	} catch (error) {
-	// 		console.error('Error creating restaurant:', error);
-	// 		const errorMessages = Object.values(error.response?.data?.errors || {})
-	// 			.flat()
-	// 			.join('\n');
-	// 		setPopupContent(errorMessages || 'An error occurred while creating the restaurant.');
-	// 		setIsPopupOpen(true);
-	// 	} finally {
-	// 		setLoading(false);
-	// 	}
-	// };
 
 	useEffect(() => {
 		return () => {
@@ -359,6 +323,37 @@ export default function RestaurantCreate() {
 									<option value="inactive">Inactive</option>
 								</select>
 								{errors.status && <span className="text-sm text-red-500">{errors.status}</span>}
+							</div>
+
+							{/* Reservation Acceptance Radio Buttons */}
+							<div className="w-full mt-4">
+								<label className="block text-sm font-medium text-gray-700">Reservation Acceptance</label>
+								<div className="flex items-center space-x-4 mt-2">
+									<label className="flex items-center space-x-2">
+										<input
+											type="radio"
+											name="reservation_status"
+											value="automatic"
+											checked={restaurantData.reservation_status === 'automatic'}
+											onChange={handleInputChange}
+											className="form-radio text-blue-600 focus:ring focus:ring-blue-300"
+										/>
+										<span className="text-gray-700">Auto Accept</span>
+									</label>
+
+									<label className="flex items-center space-x-2">
+										<input
+											type="radio"
+											name="reservation_status"
+											value="manual"
+											checked={restaurantData.reservation_status === 'manual'}
+											onChange={handleInputChange}
+											className="form-radio text-blue-600 focus:ring focus:ring-blue-300"
+										/>
+										<span className="text-gray-700">Manual Accept</span>
+									</label>
+								</div>
+								{errors.reservation_status && <span className="text-sm text-red-500">{errors.reservation_status}</span>}
 							</div>
 						</div>
 

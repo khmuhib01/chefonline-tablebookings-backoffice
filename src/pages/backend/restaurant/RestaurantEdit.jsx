@@ -27,6 +27,7 @@ export default function RestaurantEdit() {
 		post_code: '',
 		category: '',
 		status: item?.status ? item.status : 'active',
+		reservation_status: '',
 		avatar: null,
 	});
 
@@ -50,6 +51,7 @@ export default function RestaurantEdit() {
 				post_code: item.post_code || '',
 				category: item.category || '',
 				status: item.status ? item.status : 'active',
+				reservation_status: item.reservation_status || 'manual',
 				avatar: null,
 			});
 		} else {
@@ -72,7 +74,7 @@ export default function RestaurantEdit() {
 
 	const fetchRestaurantDetails = async (restaurantId) => {
 		try {
-			const {data} = await getRestaurantDetails(restaurantId);
+			const data = await getRestaurantDetails(restaurantId);
 			setRestaurantData({
 				name: data.name,
 				email: data.email,
@@ -82,6 +84,7 @@ export default function RestaurantEdit() {
 				post_code: data.post_code,
 				category: data.category,
 				status: data.status ? capitalizeStatus(data.status) : 'Active',
+				reservation_status: data.reservation_status || 'manual',
 				avatar: null,
 			});
 		} catch (error) {
@@ -112,6 +115,9 @@ export default function RestaurantEdit() {
 		} else if (!phonePattern.test(restaurantData.phone)) {
 			newErrors.phone = 'Phone number must be 11 digits';
 		}
+
+		if (!restaurantData.reservation_status)
+			newErrors.reservation_status = 'Please select a reservation acceptance type';
 
 		if (!restaurantData.post_code) newErrors.post_code = 'Post code is required';
 
@@ -148,6 +154,7 @@ export default function RestaurantEdit() {
 		formData.append('post_code', restaurantData.post_code);
 		formData.append('category', restaurantData.category);
 		formData.append('status', restaurantData.status);
+		formData.append('reservation_status', restaurantData.reservation_status);
 		if (restaurantData.avatar) {
 			formData.append('avatar', restaurantData.avatar);
 		}
@@ -158,11 +165,15 @@ export default function RestaurantEdit() {
 
 		try {
 			const response = await createRestaurant(formData);
-			if (response) {
+
+			console.log('API Response:', response); // Debugging: Check API response in the console
+
+			if (response && response.status === true) {
 				toast.success('Restaurant updated successfully!', {position: 'top-center'});
+
 				navigate('/dashboard/restaurant-info');
 			} else {
-				toast.error('Failed to update restaurant', {position: 'top-center'});
+				toast.error('Failed to update restaurant. Please try again.', {position: 'top-center'});
 			}
 		} catch (error) {
 			console.error('Error updating restaurant:', error);
@@ -173,6 +184,9 @@ export default function RestaurantEdit() {
 
 			setPopupContent(errorMessages || 'An error occurred while updating the restaurant.');
 			setIsPopupOpen(true);
+
+			// Show toast error message
+			toast.error('Error updating restaurant. Check the fields and try again.', {position: 'top-center'});
 		}
 	};
 
@@ -316,7 +330,6 @@ export default function RestaurantEdit() {
 								</select>
 								{errors.category && <span className="text-sm text-red-500">{errors.category}</span>}
 							</div>
-
 							<div className="flex flex-col w-full">
 								<label htmlFor="status" className="block text-sm font-medium text-gray-700">
 									Status
@@ -333,6 +346,36 @@ export default function RestaurantEdit() {
 									<option value="inactive">Inactive</option>
 								</select>
 								{errors.status && <span className="text-sm text-red-500">{errors.status}</span>}
+							</div>
+							{/* Reservation Acceptance Radio Buttons */}
+							<div className="w-full mt-4">
+								<label className="block text-sm font-medium text-gray-700">Reservation Acceptance</label>
+								<div className="flex items-center space-x-4 mt-2">
+									<label className="flex items-center space-x-2">
+										<input
+											type="radio"
+											name="reservation_status"
+											value="automatic"
+											checked={restaurantData.reservation_status === 'automatic'}
+											onChange={handleInputChange}
+											className="form-radio text-blue-600 focus:ring focus:ring-blue-300"
+										/>
+										<span className="text-gray-700">Auto Accept</span>
+									</label>
+
+									<label className="flex items-center space-x-2">
+										<input
+											type="radio"
+											name="reservation_status"
+											value="manual"
+											checked={restaurantData.reservation_status === 'manual'}
+											onChange={handleInputChange}
+											className="form-radio text-blue-600 focus:ring focus:ring-blue-300"
+										/>
+										<span className="text-gray-700">Manual Accept</span>
+									</label>
+								</div>
+								{errors.reservation_status && <span className="text-sm text-red-500">{errors.reservation_status}</span>}
 							</div>
 						</div>
 
