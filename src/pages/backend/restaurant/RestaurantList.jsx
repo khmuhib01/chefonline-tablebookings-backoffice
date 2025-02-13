@@ -5,6 +5,7 @@ import {getRestaurantList} from '../../../api';
 import {useSelector, useDispatch} from 'react-redux';
 import {setUser} from '../../../store/reducers/userSlice';
 import PageTitle from '../../../components/PageTitle';
+import {appConfig} from '../../../AppConfig';
 
 export default function RestaurantList() {
 	const [restaurants, setRestaurants] = useState([]);
@@ -20,6 +21,8 @@ export default function RestaurantList() {
 
 	const itemsPerPage = 20;
 
+	const baseImageUrl = appConfig.baseUrl;
+
 	const handleSearchChange = (e) => {
 		setSearchTerm(e.target.value);
 		setCurrentPage(1); // Reset to the first page when searching
@@ -34,6 +37,8 @@ export default function RestaurantList() {
 
 	const startIndex = (currentPage - 1) * itemsPerPage;
 	const paginatedData = filteredData.slice(startIndex, startIndex + itemsPerPage);
+
+	console.log('paginatedData', paginatedData);
 
 	const totalPages = Math.ceil(filteredData.length / itemsPerPage);
 
@@ -182,12 +187,13 @@ export default function RestaurantList() {
 										<tr className="bg-gray-100 text-left">
 											<th className="px-4 py-2 border">Serial No</th>
 											<th className="px-4 py-2 border">Rest UUID</th>
+											<th className="px-4 py-2 border">Image</th>
 											<th className="px-4 py-2 border">Id</th>
 											<th className="px-4 py-2 border">Name</th>
 											<th className="px-4 py-2 border">Email</th>
 											<th className="px-4 py-2 border">Phone</th>
-											<th className="px-4 py-2 border">Website</th>
-											<th className="px-4 py-2 border">Address</th>
+											{/* <th className="px-4 py-2 border">Website</th> */}
+											{/* <th className="px-4 py-2 border">Address</th> */}
 											<th className="px-4 py-2 border">Postcode</th>
 											<th className="px-4 py-2 border">Category</th>
 											<th className="px-4 py-2 border">Reservation type</th>
@@ -201,11 +207,23 @@ export default function RestaurantList() {
 												<tr key={index} className="hover:bg-gray-50">
 													<td className="px-4 py-2 border">{startIndex + index + 1}</td>
 													<td className="px-4 py-2 border">{item.id || 'N/A'}</td>
+													<td className="px-4 py-2 border">
+														{item.avatar ? (
+															<img
+																src={baseImageUrl + item.avatar}
+																alt="Restaurant Image"
+																className="w-[100px] h-[100px] object-cover"
+															/>
+														) : (
+															'N/A'
+														)}
+													</td>
+
 													<td className="px-4 py-2 border">{item.uuid || 'N/A'}</td>
 													<td className="px-4 py-2 border">{item.name || 'N/A'}</td>
 													<td className="px-4 py-2 border">{item.email || 'N/A'}</td>
 													<td className="px-4 py-2 border">{item.phone || 'N/A'}</td>
-													<td className="px-4 py-2 border">
+													{/* <td className="px-4 py-2 border">
 														{item.website ? (
 															<a
 																href={item.website}
@@ -218,8 +236,8 @@ export default function RestaurantList() {
 														) : (
 															'N/A'
 														)}
-													</td>
-													<td className="px-4 py-2 border">{item.address || 'N/A'}</td>
+													</td> */}
+													{/* <td className="px-4 py-2 border">{item.address || 'N/A'}</td> */}
 													<td className="px-4 py-2 border">{item.post_code || 'N/A'}</td>
 													<td className="px-4 py-2 border">
 														{item.category_list && item?.category_list?.name ? item?.category_list?.name : 'N/A'}

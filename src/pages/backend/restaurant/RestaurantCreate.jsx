@@ -77,18 +77,38 @@ export default function RestaurantCreate() {
 	const onSingleDrop = (acceptedFiles) => {
 		const file = acceptedFiles[0];
 		if (file) {
-			setRestaurantData({...restaurantData, avatar: file});
+			const previewUrl = URL.createObjectURL(file);
+			setRestaurantData({...restaurantData, avatar: file, avatarPreview: previewUrl});
 		} else {
 			console.error('File format not supported');
 		}
 	};
 
 	const handleRemoveSingleImage = () => {
-		setRestaurantData({...restaurantData, avatar: null});
+		if (restaurantData.avatarPreview) {
+			URL.revokeObjectURL(restaurantData.avatarPreview);
+		}
+		setRestaurantData({...restaurantData, avatar: null, avatarPreview: null});
 		if (fileInputRef.current) {
 			fileInputRef.current.value = '';
 		}
 	};
+
+	// const onSingleDrop = (acceptedFiles) => {
+	// 	const file = acceptedFiles[0];
+	// 	if (file) {
+	// 		setRestaurantData({...restaurantData, avatar: file});
+	// 	} else {
+	// 		console.error('File format not supported');
+	// 	}
+	// };
+
+	// const handleRemoveSingleImage = () => {
+	// 	setRestaurantData({...restaurantData, avatar: null});
+	// 	if (fileInputRef.current) {
+	// 		fileInputRef.current.value = '';
+	// 	}
+	// };
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
@@ -334,7 +354,26 @@ export default function RestaurantCreate() {
 								aria-label="Upload a single image"
 							>
 								<input {...singleImageDropzone.getInputProps()} ref={fileInputRef} />
-								{restaurantData.avatar ? (
+								{restaurantData.avatarPreview ? (
+									<div className="h-48 w-48 m-auto relative">
+										<img
+											src={restaurantData.avatarPreview}
+											alt="Preview"
+											className="mx-auto h-48 w-48 rounded-md bg-white p-2 shadow-md"
+										/>
+										<button
+											onClick={handleRemoveSingleImage}
+											className="absolute top-2 right-2 bg-white rounded-full p-1 text-red-500"
+											aria-label="Remove image"
+										>
+											<Cross className="h-5 w-5 bg-white shadow-md rounded-full" />
+										</button>
+									</div>
+								) : (
+									<p>Drag & drop an image here, or click to select one</p>
+								)}
+
+								{/* {restaurantData.avatar ? (
 									<div className="h-48 w-48 m-auto relative">
 										<img
 											src={URL.createObjectURL(restaurantData.avatar)}
@@ -351,7 +390,7 @@ export default function RestaurantCreate() {
 									</div>
 								) : (
 									<p>Drag & drop an image here, or click to select one</p>
-								)}
+								)} */}
 							</div>
 						</div>
 

@@ -8,15 +8,20 @@ import {createRestaurant, getCategoryData, getRestaurantDetails} from '../../../
 import toast, {Toaster} from 'react-hot-toast';
 import Popup from './../../../ui-share/Popup'; // Import your Popup component
 import PageTitle from '../../../components/PageTitle';
+import {appConfig} from '../../../AppConfig';
 
 export default function RestaurantEdit() {
 	const {id} = useParams(); // Get the restaurant ID from the URL
 	const location = useLocation();
 	const item = location.state?.item;
 
+	const imageBaseUrl = appConfig.baseUrl;
+
 	const capitalizeStatus = (status) => {
 		return status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
 	};
+
+	console.log('item', item);
 
 	const [restaurantData, setRestaurantData] = useState({
 		name: '',
@@ -26,10 +31,14 @@ export default function RestaurantEdit() {
 		address: '',
 		post_code: '',
 		category: '',
-		status: item?.status ? item.status : 'active',
+		status: item?.status || 'active',
 		reservation_status: '',
-		avatar: null,
+		avatar: null, // New uploaded file
+		avatarPreview: item?.avatar ? imageBaseUrl + item.avatar : '', // Full API URL for existing image
 	});
+
+	// const imageBaseUrl2 = imageBaseUrl + item.avatar;
+	// console.log('imageBaseUrl2', imageBaseUrl2);
 
 	const [categoryData, setCategoryData] = useState([]);
 	const [errors, setErrors] = useState({});
@@ -85,12 +94,33 @@ export default function RestaurantEdit() {
 				category: data.category,
 				status: data.status ? capitalizeStatus(data.status) : 'Active',
 				reservation_status: data.reservation_status || 'manual',
-				avatar: null,
+				avatar: null, // Reset uploaded file
+				avatarPreview: data.avatar ? imageBaseUrl + data.avatar : '', // Set existing image from API
 			});
 		} catch (error) {
 			console.error('Error fetching restaurant details:', error);
 		}
 	};
+
+	// const fetchRestaurantDetails = async (restaurantId) => {
+	// 	try {
+	// 		const data = await getRestaurantDetails(restaurantId);
+	// 		setRestaurantData({
+	// 			name: data.name,
+	// 			email: data.email,
+	// 			phone: data.phone,
+	// 			website: data.website,
+	// 			address: data.address,
+	// 			post_code: data.post_code,
+	// 			category: data.category,
+	// 			status: data.status ? capitalizeStatus(data.status) : 'Active',
+	// 			reservation_status: data.reservation_status || 'manual',
+	// 			avatar: null,
+	// 		});
+	// 	} catch (error) {
+	// 		console.error('Error fetching restaurant details:', error);
+	// 	}
+	// };
 
 	const handleInputChange = (e) => {
 		const {name, value} = e.target;
@@ -126,16 +156,107 @@ export default function RestaurantEdit() {
 
 	const onSingleDrop = (acceptedFiles) => {
 		const file = acceptedFiles[0];
-		setRestaurantData({...restaurantData, avatar: file});
+		if (file) {
+			if (restaurantData.avatarPreview && restaurantData.avatarPreview.startsWith('blob:')) {
+				URL.revokeObjectURL(restaurantData.avatarPreview); // Free memory of previous preview
+			}
+			const previewUrl = URL.createObjectURL(file);
+			setRestaurantData((prevData) => ({
+				...prevData,
+				avatar: file,
+				avatarPreview: previewUrl, // Update preview URL for new image
+			}));
+		}
 	};
 
 	const handleRemoveSingleImage = (e) => {
-		e.stopPropagation(); // Prevent the file input from being triggered
-		setRestaurantData({...restaurantData, avatar: null});
+		e.stopPropagation();
+		if (restaurantData.avatarPreview && restaurantData.avatarPreview.startsWith('blob:')) {
+			URL.revokeObjectURL(restaurantData.avatarPreview); // Free memory
+		}
+		setRestaurantData((prevData) => ({
+			...prevData,
+			avatar: null,
+			avatarPreview: '', // Remove preview
+		}));
 		if (fileInputRef.current) {
 			fileInputRef.current.value = '';
 		}
 	};
+
+	useEffect(() => {
+		return () => {
+			if (restaurantData.avatarPreview && restaurantData.avatarPreview.startsWith('blob:')) {
+				URL.revokeObjectURL(restaurantData.avatarPreview);
+			}
+		};
+	}, [restaurantData.avatarPreview]);
+
+	// const onSingleDrop = (acceptedFiles) => {
+	// 	const file = acceptedFiles[0];
+	// 	setRestaurantData({...restaurantData, avatar: file});
+	// };
+
+	// const handleRemoveSingleImage = (e) => {
+	// 	e.stopPropagation(); // Prevent the file input from being triggered
+	// 	setRestaurantData({...restaurantData, avatar: null});
+	// 	if (fileInputRef.current) {
+	// 		fileInputRef.current.value = '';
+	// 	}
+	// };
+
+	// const handleSubmit = async (e) => {
+	// 	e.preventDefault();
+	// 	const validationErrors = validateFields();
+	// 	if (Object.keys(validationErrors).length > 0) {
+	// 		setErrors(validationErrors);
+	// 		return;
+	// 	}
+
+	// 	const formData = new FormData();
+	// 	formData.append('name', restaurantData.name);
+	// 	formData.append('email', restaurantData.email);
+	// 	formData.append('phone', restaurantData.phone);
+	// 	formData.append('website', restaurantData.website);
+	// 	formData.append('address', restaurantData.address);
+	// 	formData.append('post_code', restaurantData.post_code);
+	// 	formData.append('category', restaurantData.category);
+	// 	formData.append('status', restaurantData.status);
+	// 	formData.append('reservation_status', restaurantData.reservation_status);
+	// 	if (restaurantData.avatar) {
+	// 		formData.append('avatar', restaurantData.avatar);
+	// 	}
+
+	// 	formData.append('uuid', id);
+	// 	formData.append('params', 'update');
+	// 	formData.append('updated_by', storeUser);
+
+	// 	try {
+	// 		const response = await createRestaurant(formData);
+
+	// 		console.log('API Response:', response); // Debugging: Check API response in the console
+
+	// 		if (response && response.status === true) {
+	// 			toast.success(response.message, {position: 'top-center'});
+
+	// 			// navigate('/dashboard/restaurant-info');
+	// 		} else {
+	// 			toast.error(response.message, {position: 'top-center'});
+	// 		}
+	// 	} catch (error) {
+	// 		console.error('Error updating restaurant:', error);
+
+	// 		const errorMessages = Object.values(error.response?.data?.errors || {})
+	// 			.flat()
+	// 			.join('\n');
+
+	// 		setPopupContent(errorMessages || 'An error occurred while updating the restaurant.');
+	// 		setIsPopupOpen(true);
+
+	// 		// Show toast error message
+	// 		toast.error('Error updating restaurant. Check the fields and try again.', {position: 'top-center'});
+	// 	}
+	// };
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
@@ -155,8 +276,11 @@ export default function RestaurantEdit() {
 		formData.append('category', restaurantData.category);
 		formData.append('status', restaurantData.status);
 		formData.append('reservation_status', restaurantData.reservation_status);
+
 		if (restaurantData.avatar) {
 			formData.append('avatar', restaurantData.avatar);
+		} else if (restaurantData.avatarPreview && !restaurantData.avatarPreview.startsWith('blob:')) {
+			formData.append('avatar', restaurantData.avatarPreview.replace(imageBaseUrl, '')); // Keep API image
 		}
 
 		formData.append('uuid', id);
@@ -166,27 +290,15 @@ export default function RestaurantEdit() {
 		try {
 			const response = await createRestaurant(formData);
 
-			console.log('API Response:', response); // Debugging: Check API response in the console
-
 			if (response && response.status === true) {
 				toast.success(response.message, {position: 'top-center'});
-
-				// navigate('/dashboard/restaurant-info');
 			} else {
 				toast.error(response.message, {position: 'top-center'});
 			}
 		} catch (error) {
 			console.error('Error updating restaurant:', error);
-
-			const errorMessages = Object.values(error.response?.data?.errors || {})
-				.flat()
-				.join('\n');
-
-			setPopupContent(errorMessages || 'An error occurred while updating the restaurant.');
+			setPopupContent('Error updating restaurant. Check the fields and try again.');
 			setIsPopupOpen(true);
-
-			// Show toast error message
-			toast.error('Error updating restaurant. Check the fields and try again.', {position: 'top-center'});
 		}
 	};
 
@@ -198,7 +310,7 @@ export default function RestaurantEdit() {
 		};
 	}, [restaurantData.avatar]);
 
-	const singleImageDropzone = useDropzone({
+	const {getRootProps, getInputProps} = useDropzone({
 		onDrop: onSingleDrop,
 		accept: {
 			'image/jpeg': [],
@@ -207,10 +319,18 @@ export default function RestaurantEdit() {
 			'image/bmp': [],
 		},
 		multiple: false,
+		noClick: false, // Ensures clicking the area opens file manager
+		noKeyboard: false, // Allows keyboard navigation
 	});
 
 	const handleRestaurantList = () => {
 		navigate('/dashboard/restaurant-info');
+	};
+
+	const handleDropzoneClick = () => {
+		if (fileInputRef.current) {
+			fileInputRef.current.click();
+		}
 	};
 
 	return (
@@ -382,6 +502,33 @@ export default function RestaurantEdit() {
 						<div className="mt-6">
 							<label className="block text-sm font-medium text-gray-700">Upload Restaurant Image</label>
 							<div
+								{...getRootProps({onClick: handleDropzoneClick})}
+								className="mt-2 p-4 border-dashed border-2 border-gray-300 rounded-md text-center cursor-pointer"
+							>
+								{/* Ensure input is properly included and visible */}
+								<input {...getInputProps()} ref={fileInputRef} style={{display: 'none'}} />
+
+								{restaurantData.avatarPreview ? (
+									<div className="h-48 w-48 m-auto relative">
+										<img
+											src={restaurantData.avatarPreview}
+											alt="Restaurant Preview"
+											className="mx-auto h-48 w-48 rounded-md bg-white p-2 shadow-md"
+										/>
+										<button
+											onClick={handleRemoveSingleImage}
+											className="absolute top-2 right-2 bg-white rounded-full p-1 text-red-500"
+											aria-label="Remove image"
+										>
+											<Cross className="h-5 w-5 bg-white shadow-md rounded-full" />
+										</button>
+									</div>
+								) : (
+									<p>Drag & drop an image here, or click to select one</p>
+								)}
+							</div>
+
+							{/* <div
 								{...singleImageDropzone.getRootProps()}
 								className="mt-2 p-4 border-dashed border-2 border-gray-300 rounded-md text-center cursor-pointer"
 								aria-label="Upload a single image"
@@ -405,7 +552,7 @@ export default function RestaurantEdit() {
 								) : (
 									<p>Drag & drop an image here, or click to select one</p>
 								)}
-							</div>
+							</div> */}
 						</div>
 
 						<div className="mt-6 text-right">
