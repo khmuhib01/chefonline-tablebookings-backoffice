@@ -169,11 +169,11 @@ export default function RestaurantEdit() {
 			console.log('API Response:', response); // Debugging: Check API response in the console
 
 			if (response && response.status === true) {
-				toast.success('Restaurant updated successfully!', {position: 'top-center'});
+				toast.success(response.message, {position: 'top-center'});
 
-				navigate('/dashboard/restaurant-info');
+				// navigate('/dashboard/restaurant-info');
 			} else {
-				toast.error('Failed to update restaurant. Please try again.', {position: 'top-center'});
+				toast.error(response.message, {position: 'top-center'});
 			}
 		} catch (error) {
 			console.error('Error updating restaurant:', error);

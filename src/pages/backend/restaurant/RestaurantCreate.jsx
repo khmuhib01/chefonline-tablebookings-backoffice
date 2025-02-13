@@ -120,7 +120,7 @@ export default function RestaurantCreate() {
 			// return;
 			const response = await createRestaurant(formData);
 			if (response) {
-				toast.success('Restaurant created successfully!', {position: 'top-center'});
+				toast.success(response.message, {position: 'top-center'});
 				setRestaurantData({
 					name: '',
 					email: '',
@@ -134,7 +134,7 @@ export default function RestaurantCreate() {
 					reservation_status: '',
 				});
 			} else {
-				toast.error('Failed to create restaurant', {position: 'top-center'});
+				toast.error(response.message, {position: 'top-center'});
 			}
 		} catch (error) {
 			console.error('Error creating restaurant:', error);
