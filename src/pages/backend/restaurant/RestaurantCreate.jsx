@@ -74,25 +74,6 @@ export default function RestaurantCreate() {
 		return newErrors;
 	};
 
-	// const validateFields = () => {
-	// 	const newErrors = {};
-	// 	if (!restaurantData.name) newErrors.name = 'Restaurant name is required';
-	// 	const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-	// 	if (!restaurantData.email) {
-	// 		newErrors.email = 'Email is required';
-	// 	} else if (!emailPattern.test(restaurantData.email)) {
-	// 		newErrors.email = 'Enter a valid email';
-	// 	}
-	// 	const phonePattern = /^\d{11}$/;
-	// 	if (!restaurantData.phone) {
-	// 		newErrors.phone = 'Phone number is required';
-	// 	} else if (!phonePattern.test(restaurantData.phone)) {
-	// 		newErrors.phone = 'Phone number must be 11 digits';
-	// 	}
-	// 	if (!restaurantData.post_code) newErrors.post_code = 'Post code is required';
-	// 	return newErrors;
-	// };
-
 	const onSingleDrop = (acceptedFiles) => {
 		const file = acceptedFiles[0];
 		if (file) {
@@ -305,24 +286,6 @@ export default function RestaurantCreate() {
 									))}
 								</select>
 								{errors.category && <span className="text-sm text-red-500">{errors.category}</span>}
-							</div>
-
-							<div className="flex flex-col w-full">
-								<label htmlFor="status" className="block text-sm font-medium text-gray-700">
-									Status
-								</label>
-								<select
-									name="status"
-									value={restaurantData.status}
-									onChange={handleInputChange}
-									className={`border rounded p-2 text-base ${
-										errors.status ? 'border-red-500' : 'border-gray-300'
-									} focus:outline-none focus:shadow`}
-								>
-									<option value="active">Active</option>
-									<option value="inactive">Inactive</option>
-								</select>
-								{errors.status && <span className="text-sm text-red-500">{errors.status}</span>}
 							</div>
 
 							{/* Reservation Acceptance Radio Buttons */}
