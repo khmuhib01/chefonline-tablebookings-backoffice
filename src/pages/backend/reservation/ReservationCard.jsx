@@ -93,12 +93,6 @@ export default function ReservationCard({
 						</div>
 
 						<div className="w-full lg:w-[70%] flex flex-wrap justify-center lg:justify-end gap-2 mt-4 lg:mt-0">
-							{/* View Button - Always Available */}
-							{/* Don't remove this code */}
-							{/* {(item?.status === 'pending' || item?.status === 'completed') && (
-								
-							)} */}
-
 							<button
 								className="border border-green-600 text-green-600 hover:bg-green-600 hover:text-white py-2 px-4 rounded-md flex items-center gap-2"
 								onClick={() => handleView(item?.uuid)}
@@ -129,13 +123,6 @@ export default function ReservationCard({
 							) : item?.status === 'check_in' &&
 							  item.reservation_date === formatDate(new Date().toISOString().split('T')[0]) ? (
 								<>
-									{/* <button
-										className="border border-button text-button hover:bg-buttonHover hover:text-white py-2 px-4 rounded-md flex items-center justify-center"
-										onClick={() => handleCancel(item?.uuid)}
-									>
-										Cancel
-										{loadingReservationId === item?.uuid ? <Spinner /> : null}
-									</button> */}
 									<button
 										className="border bg-amber-100 text-amber-600 hover:bg-amber-600 hover:text-white py-2 px-4 rounded-md flex items-center justify-center"
 										onClick={() => handleCheckedOut(item?.uuid)}
