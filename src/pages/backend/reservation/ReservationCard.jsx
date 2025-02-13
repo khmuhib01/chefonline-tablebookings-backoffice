@@ -35,7 +35,9 @@ export default function ReservationCard({
 										? 'bg-amber-100 border-amber-400'
 										: item?.status === 'completed'
 										? 'bg-green-100 border-green-400'
-										: 'bg-red-200 border-button'
+										: item?.status === 'cancelled'
+										? 'bg-red-100 border-red-400'
+										: item?.status === 'confirmed' && 'bg-blue-100 border-blue-400'
 								}`}
 							>
 								<p
@@ -46,7 +48,9 @@ export default function ReservationCard({
 											? 'text-amber-600'
 											: item?.status === 'completed'
 											? 'text-green-500'
-											: 'text-red-500'
+											: item?.status === 'cancelled'
+											? 'text-red-500'
+											: item?.status === 'confirmed' && 'text-blue-500'
 									}`}
 								>
 									TABLE
@@ -59,7 +63,9 @@ export default function ReservationCard({
 											? 'text-amber-600'
 											: item?.status === 'completed'
 											? 'text-green-500'
-											: 'text-red-500'
+											: item?.status === 'cancelled'
+											? 'text-red-500'
+											: item?.status === 'confirmed' && 'text-blue-500'
 									}`}
 								>
 									{item?.table_master?.table_name}
@@ -92,7 +98,7 @@ export default function ReservationCard({
 												? 'text-green-500'
 												: item.status === 'cancelled'
 												? 'text-red-500'
-												: item.status === 'confirmed' && 'text-green-600'
+												: item.status === 'confirmed' && 'text-blue-600'
 										} font-bold text-sm capitalize`}
 									>
 										{item?.status === 'pending'
