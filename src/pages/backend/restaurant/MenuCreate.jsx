@@ -519,6 +519,7 @@ export default function MenuCreate() {
 		}
 	};
 
+	// Menu Create Popup
 	const renderPopupForm = ({title, isMenuItem}) => (
 		<Popup
 			isOpen
@@ -603,26 +604,7 @@ export default function MenuCreate() {
 			content={
 				<div className="flex flex-col gap-5">
 					<p>Are you sure you want to delete this menu item?</p>
-					<div className="flex items-center space-x-4 mb-4 overflow-x-scroll sm:overflow-x-hidden border-b">
-						<button
-							onClick={() => setActiveTab('Menus and Items')}
-							className={`text-lg font-semibold ${
-								activeTab === 'Menus and Items' ? 'text-button border-b-2 border-button' : 'text-gray-500'
-							}`}
-						>
-							Menus and Items
-						</button>
-						<button
-							onClick={() => setActiveTab('Menu Image or Pdf Upload')}
-							className={`text-lg font-semibold ${
-								activeTab === 'Menu Image or Pdf Upload' ? 'text-button border-b-2 border-button' : 'text-gray-500'
-							}`}
-						>
-							Menu Image or Pdf Upload
-						</button>
-					</div>
-
-					{/* <div className="w-full flex items-center gap-3 justify-end mt-10">
+					<div className="w-full flex items-center gap-3 justify-end mt-10">
 						<CustomButton
 							text="Delete"
 							className="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-md"
@@ -635,7 +617,7 @@ export default function MenuCreate() {
 							onClick={() => setIsDeletePopupOpen(false)}
 							disabled={isLoading}
 						/>
-					</div> */}
+					</div>
 				</div>
 			}
 			onClose={() => setIsDeletePopupOpen(false)}
@@ -654,7 +636,7 @@ export default function MenuCreate() {
 					<div className="max-w-[700px] mx-auto px-5">
 						<div className="flex flex-col gap-5">
 							<div className="flex justify-between items-center">
-								<h1 className="text-2xl font-bold">{rest_name} Menu and items setup</h1>
+								<h1 className="text-2xl font-bold">{rest_name} Menu create</h1>
 								<div className="flex items-center space-x-4">
 									<button
 										className="bg-button text-white py-2 px-4 rounded hover:bg-buttonHover w-full md:w-auto"

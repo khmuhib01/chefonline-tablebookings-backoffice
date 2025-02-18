@@ -250,12 +250,6 @@ const getCheckIn = async (restaurantId, reservationId, checkInTime) => {
 const getAccept = async (restaurantId, reservationId, userId) => {
 	const token = getToken();
 
-	console.log('token', token);
-
-	console.log('restaurantId', restaurantId);
-	console.log('reservationId', reservationId);
-	console.log('userId', userId);
-
 	const headers = {
 		'Content-Type': 'application/json',
 		Authorization: `Bearer ${token}`,
@@ -268,7 +262,6 @@ const getAccept = async (restaurantId, reservationId, userId) => {
 				headers,
 			}
 		);
-		console.log('data', data);
 		return data;
 	} catch (error) {
 		console.error('Error checking in:', error);

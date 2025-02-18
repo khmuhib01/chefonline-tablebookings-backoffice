@@ -14,7 +14,6 @@ export default function ReservationCard({
 	isLoading,
 	loadingReservationId,
 }) {
-	// console.log('data', data);
 	return (
 		<div className="w-full">
 			{data.length === 0 ? (
