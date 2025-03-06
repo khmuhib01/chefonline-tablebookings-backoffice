@@ -30,7 +30,7 @@ export default function RestaurantUserCreate() {
 	const [errors, setErrors] = useState({});
 	const [isPopupOpen, setIsPopupOpen] = useState(false);
 	const [popupContent, setPopupContent] = useState('');
-	const [userListData, setUserListData] = useState([]); // Store users
+	const [userListData, setUserListData] = useState([]);
 	const [loading, setLoading] = useState(false);
 
 	// Edit Popup State
@@ -43,7 +43,6 @@ export default function RestaurantUserCreate() {
 	const {isAuthenticated, userType} = useContext(AuthContextRestaurant);
 
 	const navigate = useNavigate();
-	// const storeUser = useSelector((state) => state.user.user.uuid);
 	const storeUser = useSelector((state) => state.user.user);
 
 	const handleTabChange = (tab) => {
@@ -58,8 +57,16 @@ export default function RestaurantUserCreate() {
 
 	const handleInputChange = (e) => {
 		const {name, value} = e.target;
-		setUserData({...userData, [name]: value});
-		setErrors({...errors, [name]: ''}); // Clear errors on change
+
+		setUserData((prev) => ({
+			...prev,
+			[name]: value,
+		}));
+
+		setErrors((prevErrors) => ({
+			...prevErrors,
+			[name]: '',
+		}));
 	};
 
 	const validateFields = () => {
@@ -92,12 +99,17 @@ export default function RestaurantUserCreate() {
 			newErrors.userType = 'User type is required';
 		}
 
+		// Status validation
+		if (!userData.status) {
+			newErrors.status = 'Status is required';
+		}
+
 		return newErrors;
 	};
 
 	const onSingleDrop = (acceptedFiles) => {
 		const file = acceptedFiles[0];
-		setUserData({...userData, avatar: file}); // Store the file object
+		setUserData({...userData, avatar: file});
 	};
 
 	const handleRemoveSingleImage = () => {
@@ -108,31 +120,29 @@ export default function RestaurantUserCreate() {
 	};
 
 	const generatePassword = () => {
-		const randomPassword = Math.random().toString(36).slice(-10); // Generate a random 10-character password
+		const randomPassword = Math.random().toString(36).slice(-10);
 		setUserData({...userData, password: randomPassword});
 	};
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
+
 		const validationErrors = validateFields();
 		if (Object.keys(validationErrors).length > 0) {
 			setErrors(validationErrors);
 			return;
 		}
-
-		// If needed, you can comment out the API call to see the console.log result
-		// Use FormData to handle file uploads
 		const formData = new FormData();
 		formData.append('name', userData.name);
 		formData.append('email', userData.email);
 		formData.append('phone', userData.phone);
 		formData.append('address', userData.address);
-		formData.append('post_code', userData.post_code); // Append the Post Code
-		formData.append('password', userData.password); // Append the password
-		formData.append('user_type', userData.userType); // Append the user type
-		formData.append('status', userData.status); // Append the status
+		formData.append('post_code', userData.post_code);
+		formData.append('password', userData.password);
+		formData.append('user_type', userData.userType);
+		formData.append('status', userData.status || '');
 		if (userData.avatar) {
-			formData.append('avatar', userData.avatar); // Append the file
+			formData.append('avatar', userData.avatar);
 		}
 		formData.append('created_by', storeUser);
 		formData.append('res_uuid', id);
@@ -140,8 +150,10 @@ export default function RestaurantUserCreate() {
 
 		try {
 			const response = await createRestaurantUser(formData);
+
 			if (response) {
 				toast.success('User created successfully!', {position: 'top-center'});
+
 				setUserData({
 					name: '',
 					email: '',
@@ -159,19 +171,14 @@ export default function RestaurantUserCreate() {
 			}
 		} catch (error) {
 			console.error('Error creating user:', error);
-
-			// Convert the error object to a string or an array of messages
 			const errorMessages = Object.values(error.response?.data?.errors || {})
 				.flat()
 				.join('\n');
-
-			// Show Popup with error message
 			setPopupContent(errorMessages || 'An error occurred while creating the user.');
 			setIsPopupOpen(true);
 		}
 	};
 
-	// Fetch users when switching to "User List" tab
 	useEffect(() => {
 		if (activeTab === 'User List') {
 			fetchUserList();
@@ -179,7 +186,6 @@ export default function RestaurantUserCreate() {
 	}, [activeTab]);
 
 	useEffect(() => {
-		// Cleanup for single image
 		return () => {
 			if (userData.avatar) {
 				URL.revokeObjectURL(userData.avatar);
@@ -255,7 +261,7 @@ export default function RestaurantUserCreate() {
 
 	const renderTabContent = () => {
 		if (loadingTags) {
-			return <div>Loading...</div>; // Display loading indicator while fetching tags
+			return <div>Loading...</div>;
 		}
 		if (activeTab === 'Create User') {
 			return (
@@ -350,6 +356,7 @@ export default function RestaurantUserCreate() {
 									errors.status ? 'border-red-500' : 'border-gray-300'
 								}`}
 							>
+								<option value="">Select Status</option> {/* Ensure default value */}
 								<option value="active">Active</option>
 								<option value="inactive">Inactive</option>
 							</select>
