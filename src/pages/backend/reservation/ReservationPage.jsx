@@ -20,10 +20,6 @@ export default function ReservationPage() {
 	const {isAuthenticated, userType} = useContext(AuthContextRestaurant);
 	const navigate = useNavigate();
 
-	// Debugging logs
-	console.log('storeRestaurantDetails:', storeRestaurantDetails);
-	console.log('id:', id);
-
 	const tabs = [
 		{
 			label: 'Today',
@@ -38,7 +34,7 @@ export default function ReservationPage() {
 			content: <CheckedInTabComponent restaurantId={id} />,
 		},
 		{
-			label: 'Checked Out',
+			label: 'Check Out',
 			content: <CheckedOutTabComponent restaurantId={id} />,
 		},
 	];
@@ -56,24 +52,24 @@ export default function ReservationPage() {
 						<div className="flex flex-col gap-5">
 							<div className="flex items-center justify-between">
 								<h1 className="text-2xl font-bold">{rest_name} Reservation</h1>
-								<div className="flex items-center space-x-4">
+								{/* <div className="flex items-center space-x-4">
 									<button
 										className="bg-button text-white py-2 px-4 rounded hover:bg-buttonHover w-full md:w-auto"
 										onClick={handleRestaurantList}
 									>
 										Restaurant List
 									</button>
-								</div>
-								{/* {isAuthenticated && userType === 'super_admin' && (
+								</div> */}
+								{isAuthenticated && userType === 'super_admin' && (
 									<div className="flex items-center space-x-4">
 										<button
-											className="bg-button text-white p-2 rounded-lg hover:bg-buttonHover focus:outline-none focus:ring-2"
-											onClick={() => navigate('/dashboard/restaurant-info')}
+											className="bg-button text-white py-2 px-4 rounded hover:bg-buttonHover w-full md:w-auto"
+											onClick={handleRestaurantList}
 										>
 											Restaurant List
 										</button>
 									</div>
-								)} */}
+								)}
 							</div>
 							<div className="">
 								<Tabs tabs={tabs} />

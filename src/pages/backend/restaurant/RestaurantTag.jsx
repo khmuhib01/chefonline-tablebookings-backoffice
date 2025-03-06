@@ -98,10 +98,10 @@ export default function RestaurantTag() {
 			setLoading(false); // Clear loading state after adding tags
 			setTagName('');
 			if (response) {
-				toast.success('Tag created successfully!', {position: 'top-center'});
+				toast.success(response.data.message, {position: 'top-center'});
 				await fetchRestaurantSearchTagList(); // Refresh the list of tags
 			} else {
-				toast.error('Failed to create tag. Please try again.', {position: 'top-center'});
+				toast.error(response.message, {position: 'top-center'});
 			}
 		}
 	};
@@ -154,11 +154,11 @@ export default function RestaurantTag() {
 			};
 			const response = await postRestaurantSearchTag(data);
 			setLoading(false); // Clear loading state after deleting tags
-			if (response && response.data.message) {
-				toast.success('Tag deleted successfully!', {position: 'top-center'});
+			if (response) {
+				toast.success(response.data.message, {position: 'top-center'});
 				await fetchRestaurantSearchTagList(); // Refresh the list of tags
 			} else {
-				toast.error('Failed to delete tag. Please try again.', {position: 'top-center'});
+				toast.error(response.massage, {position: 'top-center'});
 			}
 		} catch (error) {
 			setLoading(false); // Clear loading state if there's an error
@@ -195,10 +195,10 @@ export default function RestaurantTag() {
 			setLoading(false); // Clear loading state after adding about tags
 			setAboutTagName('');
 			if (response) {
-				toast.success('About tag created successfully!', {position: 'top-center'});
+				toast.success(response.data.message, {position: 'top-center'});
 				await fetchAboutTagList(); // Refresh the list of about tags
 			} else {
-				toast.error('Failed to create about tag. Please try again.', {position: 'top-center'});
+				toast.error(response.message, {position: 'top-center'});
 			}
 		}
 	};
@@ -251,8 +251,8 @@ export default function RestaurantTag() {
 			};
 			const response = await restaurantAboutTag(data);
 			setLoading(false); // Clear loading state after deleting about tags
-			if (response && response.data.message) {
-				toast.success('About tag deleted successfully!', {position: 'top-center'});
+			if (response) {
+				toast.success(response?.data?.message, {position: 'top-center'});
 				await fetchAboutTagList(); // Refresh the list of about tags
 			} else {
 				toast.error('Failed to delete about tag. Please try again.', {position: 'top-center'});

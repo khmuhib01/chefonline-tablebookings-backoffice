@@ -10,6 +10,7 @@ import toast, {Toaster} from 'react-hot-toast';
 import {useParams, useNavigate} from 'react-router-dom';
 import {useLocation} from 'react-router-dom';
 import PageTitle from '../../../components/PageTitle';
+import {appConfig} from '../../../AppConfig';
 
 export default function MenuCreate() {
 	const {id} = useParams();
@@ -17,6 +18,8 @@ export default function MenuCreate() {
 	const {rest_name} = location.state || {};
 
 	const navigate = useNavigate();
+
+	const baseUrl = appConfig.baseUrl;
 
 	const [activeTab, setActiveTab] = useState('Menus and Items');
 	const [activeIndex, setActiveIndex] = useState(null);
@@ -35,8 +38,14 @@ export default function MenuCreate() {
 	const [price, setPrice] = useState('');
 	const [selectedItemId, setSelectedItemId] = useState(null);
 	const [uploadedFile, setUploadedFile] = useState(null);
+	const [uploadedFiles, setUploadedFiles] = useState([]);
+
+	const [deleteImageOrPdfFile, setDeleteImageOrPdfFile] = useState(null); // File to delete
+	const [isDeleteImageOrPdfPopupOpen, setIsDeleteImageOrPdfPopupOpen] = useState(false);
 
 	const storeRestaurantUUID = useSelector((state) => state.user.user.res_uuid);
+
+	// console.log('setActiveTab', activeTab);
 
 	const fetchMenuCategories = async () => {
 		setIsLoading(true);
@@ -123,10 +132,6 @@ export default function MenuCreate() {
 			symbol: '₹',
 		};
 
-		// console.log('data', data);
-
-		// return;
-
 		setIsLoading(true);
 		try {
 			if (selectedItemId) {
@@ -184,6 +189,23 @@ export default function MenuCreate() {
 		}
 	};
 
+	const fetchUploadedFiles = async () => {
+		setIsLoading(true);
+		try {
+			const response = await restaurantMenuImageOrPdf({
+				params: 'info',
+				rest_uuid: id,
+			});
+
+			setUploadedFiles(response.data); // Assuming `response.data` contains the array of files
+		} catch (error) {
+			console.error('Error fetching uploaded files:', error);
+			toast.error('Failed to fetch uploaded files.', {position: 'top-center'});
+		} finally {
+			setIsLoading(false);
+		}
+	};
+
 	const handleFileUpload = (e) => {
 		const file = e.target.files[0];
 		if (file) {
@@ -195,6 +217,18 @@ export default function MenuCreate() {
 			});
 		}
 	};
+
+	const openDeletePopup = (file) => {
+		setDeleteImageOrPdfFile(file);
+		setIsAddMenuItemPopupOpen(true);
+	};
+
+	// Call fetchUploadedFiles when the tab is opened
+	useEffect(() => {
+		if (activeTab === 'Menu Image or Pdf Upload') {
+			fetchUploadedFiles();
+		}
+	}, [activeTab]);
 
 	useEffect(() => {
 		return () => {
@@ -209,20 +243,55 @@ export default function MenuCreate() {
 		const data = {
 			rest_uuid: id,
 			params: 'create',
-			file: uploadedFile.file.name,
+			image: uploadedFile.file,
 			status: 'active',
 		};
 
-		// console.log('data', data);
-		// return;
 		try {
 			const response = await restaurantMenuImageOrPdf(data);
-			toast.success(response.data.message, {position: 'top-center'});
+			// console.log('response', response);
+			toast.success(response.message, {position: 'top-center'});
 			fetchMenuItems();
+			fetchUploadedFiles();
+			setUploadedFile(null);
 		} catch (error) {
 			toast.error('Failed to upload file. Please try again.', {position: 'top-center'});
 		} finally {
 			setIsLoading(false);
+		}
+	};
+
+	const handleDeleteImageOrPdf = async () => {
+		if (!deleteImageOrPdfFile) return;
+
+		setIsLoading(true);
+		const data = {
+			rest_uuid: id,
+			params: 'delete',
+			uuid: deleteImageOrPdfFile.uuid,
+		};
+
+		try {
+			// API call to delete the file
+			await restaurantMenuImageOrPdf(data);
+
+			// console.log('deleteImageOrPdfFile', data);
+
+			// return;
+
+			// Remove the deleted file from the state
+			setUploadedFiles((prevFiles) => prevFiles.filter((file) => file.uuid !== deleteImageOrPdfFile.uuid));
+
+			toast.success('File deleted successfully.', {position: 'top-center'});
+		} catch (error) {
+			console.error('Error deleting file:', error);
+			toast.error('Failed to delete file. Please try again.', {
+				position: 'top-center',
+			});
+		} finally {
+			setIsLoading(false);
+			setIsDeleteImageOrPdfPopupOpen(false); // Close the popup
+			setDeleteImageOrPdfFile(null); // Reset the file
 		}
 	};
 
@@ -301,7 +370,9 @@ export default function MenuCreate() {
 				return (
 					<div className="flex flex-col gap-5">
 						<h2 className="text-xl font-bold">Upload Menu Images or PDF</h2>
-						<p>Here you can upload images or PDF of your menu items or categories.</p>
+						<p>Here you can upload images or PDFs of your menu items or categories.</p>
+
+						{/* File Upload Section */}
 						<div className="flex justify-between gap-5">
 							<input
 								type="file"
@@ -309,16 +380,18 @@ export default function MenuCreate() {
 								className="border p-2 w-full"
 								onChange={(e) => handleFileUpload(e)}
 							/>
-
 							<button
-								className="border border-button hover:bg-buttonHover text-button hover:text-white py-2 px-4 rounded-md"
+								className={`border border-button text-button hover:bg-buttonHover hover:text-white py-2 px-4 rounded-md ${
+									!uploadedFile ? 'opacity-50 cursor-not-allowed' : ''
+								}`}
 								onClick={handleUpload}
-								disabled={isLoading}
+								disabled={!uploadedFile || isLoading} // Disable when no file is selected or loading
 							>
 								{isLoading ? 'Uploading...' : 'Upload'}
 							</button>
 						</div>
 
+						{/* Display Currently Uploaded File Preview */}
 						{uploadedFile && (
 							<div className="mt-5">
 								{uploadedFile.type.startsWith('image/') ? (
@@ -335,6 +408,110 @@ export default function MenuCreate() {
 								)}
 							</div>
 						)}
+
+						{/* Display Previously Uploaded Files */}
+						<div className="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+							{uploadedFiles.map((file) => (
+								<div key={file.uuid} className="relative border p-2 rounded">
+									{/* Cross/Delete Button */}
+									<button
+										className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center"
+										onClick={() => {
+											setDeleteImageOrPdfFile(file); // Set the file to delete
+											setIsDeleteImageOrPdfPopupOpen(true); // Open the delete popup
+										}}
+									>
+										&times;
+									</button>
+
+									{file.image.endsWith('.pdf') ? (
+										<a
+											href={`${baseUrl}${file.image}`}
+											target="_blank"
+											rel="noopener noreferrer"
+											className="text-blue-500 underline"
+										>
+											View PDF
+										</a>
+									) : (
+										<img
+											src={`${baseUrl}${file.image}`}
+											alt="Uploaded Preview"
+											className="w-full h-48 object-cover rounded"
+										/>
+									)}
+								</div>
+							))}
+						</div>
+
+						{/* Delete Confirmation Popup */}
+						{isDeleteImageOrPdfPopupOpen && (
+							<Popup
+								isOpen={isDeleteImageOrPdfPopupOpen}
+								title="Confirm Deletion"
+								content={
+									<div className="flex flex-col gap-5">
+										<p>Are you sure you want to delete this file?</p>
+										<div className="w-full flex items-center gap-3 justify-end mt-10">
+											<CustomButton
+												text="Delete"
+												className="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-md"
+												onClick={handleDeleteImageOrPdf}
+												disabled={isLoading}
+											/>
+											<CustomButton
+												text="Cancel"
+												className="border border-button text-button hover:bg-buttonHover hover:text-white py-2 px-4 rounded-md"
+												onClick={() => {
+													setIsDeleteImageOrPdfPopupOpen(false); // Close the popup
+													setDeleteImageOrPdfFile(null); // Reset the file
+												}}
+												disabled={isLoading}
+											/>
+										</div>
+									</div>
+								}
+								onClose={() => {
+									setIsDeleteImageOrPdfPopupOpen(false); // Close the popup
+									setDeleteImageOrPdfFile(null); // Reset the file
+								}}
+							/>
+						)}
+
+						{/* Display Previously Uploaded Files */}
+						{/* <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+							{uploadedFiles.map((file) => (
+								<div key={file.uuid} className="relative border p-2 rounded">
+									
+									<button
+										className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center"
+										onClick={() => {
+											setDeleteImageOrPdfFile(file); // Set the file to delete
+											setIsDeleteImageOrPdfPopupOpen(true); // Open the delete popup
+										}}
+									>
+										&times;
+									</button>
+
+									{file.image.endsWith('.pdf') ? (
+										<a
+											href={`${baseUrl}${file.image}`} // Use `baseUrl` here
+											target="_blank"
+											rel="noopener noreferrer"
+											className="text-blue-500 underline"
+										>
+											View PDF
+										</a>
+									) : (
+										<img
+											src={`${baseUrl}${file.image}`} // Use `baseUrl` here
+											alt="Uploaded Preview"
+											className="w-full h-48 object-cover rounded"
+										/>
+									)}
+								</div>
+							))}
+						</div> */}
 					</div>
 				);
 			default:
@@ -342,6 +519,7 @@ export default function MenuCreate() {
 		}
 	};
 
+	// Menu Create Popup
 	const renderPopupForm = ({title, isMenuItem}) => (
 		<Popup
 			isOpen
@@ -458,7 +636,7 @@ export default function MenuCreate() {
 					<div className="max-w-[700px] mx-auto px-5">
 						<div className="flex flex-col gap-5">
 							<div className="flex justify-between items-center">
-								<h1 className="text-2xl font-bold">{rest_name} Menu and items setup</h1>
+								<h1 className="text-2xl font-bold">{rest_name} Menu create</h1>
 								<div className="flex items-center space-x-4">
 									<button
 										className="bg-button text-white py-2 px-4 rounded hover:bg-buttonHover w-full md:w-auto"

@@ -8,60 +8,74 @@ export default function ReservationCard({
 	handleCheckedIn,
 	handleCancel,
 	handleCheckedOut,
+	handleAccept,
+	handleReject,
 	handleView,
 	isLoading,
 	loadingReservationId,
 }) {
 	return (
-		<div>
+		<div className="w-full">
 			{data.length === 0 ? (
-				<div className="text-titleText font-bold">No Data Found</div>
+				<div className="text-titleText font-bold text-center">No Data Found</div>
 			) : (
 				data.map((item, index) => (
-					<div className="bg-white shadow-md rounded-md p-4 flex items-center justify-between mb-4" key={index}>
-						<div className="flex items-center space-x-4">
+					<div
+						className="bg-white shadow-md rounded-md p-4 flex flex-col lg:flex-row items-center lg:justify-between mb-4 w-full"
+						key={index}
+					>
+						<div className="w-full lg:w-[30%] flex flex-col sm:flex-row items-center gap-4">
+							{/* Table Status Badge */}
 							<div
-								className={`border ${
+								className={`border p-3 rounded-md text-center w-24 ${
 									item?.status === 'pending'
-										? 'bg-green-200 border-green-600'
-										: item?.status === 'checkin'
+										? 'bg-blue-200 border-blue-600'
+										: item?.status === 'check_in'
 										? 'bg-amber-100 border-amber-400'
 										: item?.status === 'completed'
-										? 'bg-blue-100 border-blue-400'
-										: 'bg-red-200 border-button'
-								} p-2 rounded-md text-center`}
+										? 'bg-green-100 border-green-400'
+										: item?.status === 'cancelled'
+										? 'bg-red-100 border-red-400'
+										: item?.status === 'confirmed' && 'bg-blue-100 border-blue-400'
+								}`}
 							>
 								<p
-									className={`text-xs ${
+									className={`text-xs font-bold uppercase ${
 										item?.status === 'pending'
-											? 'text-green-600'
-											: item?.status === 'checkin'
+											? 'text-blue-600'
+											: item?.status === 'check_in'
 											? 'text-amber-600'
 											: item?.status === 'completed'
-											? 'text-blue-500'
-											: 'text-red-500'
-									} uppercase font-bold`}
+											? 'text-green-500'
+											: item?.status === 'cancelled'
+											? 'text-red-500'
+											: item?.status === 'confirmed' && 'text-blue-500'
+									}`}
 								>
 									TABLE
 								</p>
 								<p
 									className={`text-lg font-bold ${
 										item?.status === 'pending'
-											? 'text-green-600'
-											: item?.status === 'checkin'
+											? 'text-blue-600'
+											: item?.status === 'check_in'
 											? 'text-amber-600'
 											: item?.status === 'completed'
-											? 'text-blue-500'
-											: 'text-red-500'
+											? 'text-green-500'
+											: item?.status === 'cancelled'
+											? 'text-red-500'
+											: item?.status === 'confirmed' && 'text-blue-500'
 									}`}
 								>
 									{item?.table_master?.table_name}
 								</p>
 							</div>
-							<div className="flex flex-col gap-1">
+
+							{/* Reservation Details */}
+							<div className="flex flex-col gap-2">
 								<p className="text-gray-700 flex items-center gap-2">
 									<People size={16} className="text-bodyText" />
-									<span className="text-titleText font-bold text-sm">{item?.number_of_people}</span>
+									<span className="text-titleText font-bold text-sm">{item?.number_of_people} Guests</span>
 								</p>
 								<p className="text-gray-500 text-sm flex items-center gap-2">
 									<Time size={16} className="text-bodyText" />
@@ -73,81 +87,91 @@ export default function ReservationCard({
 								</p>
 								<p className="text-gray-500 text-sm flex items-center gap-2">
 									<Status size={16} className="text-bodyText" />
-									<span className="text-titleText font-bold text-sm capitalize">{item?.status}</span>
+									<span
+										className={`${
+											item.status === 'pending'
+												? 'text-blue-600'
+												: item.status === 'check_in'
+												? 'text-amber-600'
+												: item.status === 'completed'
+												? 'text-green-500'
+												: item.status === 'cancelled'
+												? 'text-red-500'
+												: item.status === 'confirmed' && 'text-blue-600'
+										} font-bold text-sm capitalize`}
+									>
+										{item?.status === 'pending'
+											? 'Pending'
+											: item?.status === 'check_in'
+											? 'Checked In'
+											: item?.status === 'completed'
+											? 'Completed'
+											: item?.status === 'cancelled'
+											? 'Cancelled'
+											: item?.status === 'confirmed' && 'Confirmed'}
+									</span>
 								</p>
 							</div>
 						</div>
-						<div className="block sm:flex items-center justify-end gap-3 sm:space-y-0 space-y-2 flex-1">
-							{item?.status === 'pending' &&
+
+						<div className="w-full lg:w-[70%] flex flex-wrap justify-center lg:justify-end gap-2 mt-4 lg:mt-0">
+							<button
+								className="border border-green-600 text-green-600 hover:bg-green-600 hover:text-white py-2 px-4 rounded-md flex items-center gap-2"
+								onClick={() => handleView(item?.uuid)}
+							>
+								View
+								{isLoading && <Spinner />}
+							</button>
+
+							{/* Actions based on Reservation Status */}
+							{item?.status === 'confirmed' &&
 							item.reservation_date === formatDate(new Date().toISOString().split('T')[0]) ? (
 								<>
-									<span className="text-titleText font-bold text-sm"></span>
 									<button
-										className="border border-button text-button hover:bg-buttonHover hover:text-white py-2 px-4 rounded-md flex items-center justify-end gap-2"
+										className="border border-button text-button hover:bg-buttonHover hover:text-white py-2 px-4 rounded-md flex items-center justify-center"
 										onClick={() => handleCancel(item?.uuid)}
 									>
 										Cancel
 										{loadingReservationId === item?.uuid ? <Spinner /> : null}
 									</button>
 									<button
-										className={`px-4 py-2 border ${
-											item?.status === 'pending'
-												? 'bg-green-200 text-green-600 hover:text-white rounded-md hover:bg-green-600 border-green-600'
-												: item?.status === 'checkin'
-												? 'bg-amber-100 text-amber-600 hover:text-white rounded-md hover:bg-amber-600 border-amber-400'
-												: 'bg-button text-white rounded-md hover:bg-buttonHover'
-										} focus:outline-none flex items-center justify-end gap-2`}
+										className="border bg-blue-200 text-blue-600 hover:bg-blue-600 border-blue-600 hover:text-white py-2 px-4 rounded-md flex items-center justify-center"
 										onClick={() => handleCheckedIn(item?.uuid)}
 									>
-										Checked in
+										Check In
 										{loadingReservationId === item?.uuid ? <Spinner /> : null}
 									</button>
 								</>
-							) : item?.status === 'checkin' &&
+							) : item?.status === 'check_in' &&
 							  item.reservation_date === formatDate(new Date().toISOString().split('T')[0]) ? (
 								<>
 									<button
-										className="border border-button text-button hover:bg-buttonHover hover:text-white py-2 px-4 rounded-md flex items-center justify-end gap-2"
-										onClick={() => handleCancel(item?.uuid)}
-									>
-										Cancel
-										{loadingReservationId === item?.uuid ? <Spinner /> : null}
-									</button>
-									<button
-										className={`px-4 py-2 border ${
-											item?.status === 'checkin'
-												? 'bg-amber-100 text-amber-600 hover:text-white rounded-md hover:bg-amber-600 border-amber-600'
-												: 'bg-button text-white rounded-md hover:bg-buttonHover'
-										} focus:outline-none flex items-center justify-end gap-2`}
+										className="border bg-amber-100 text-amber-600 hover:bg-amber-600 hover:text-white py-2 px-4 rounded-md flex items-center justify-center"
 										onClick={() => handleCheckedOut(item?.uuid)}
 									>
-										Checked out
+										Check Out
 										{loadingReservationId === item?.uuid ? <Spinner /> : null}
 									</button>
 								</>
-							) : item?.status === 'completed' ? (
+							) : item?.status === 'pending' &&
+							  item.reservation_date === formatDate(new Date().toISOString().split('T')[0]) ? (
 								<>
 									<button
-										className={`border ${
-											item?.status === 'completed'
-												? 'text-blue-600 hover:text-white rounded-md hover:bg-blue-600 border-blue-600'
-												: 'bg-button text-white rounded-md hover:bg-buttonHover'
-										} focus:outline-none flex items-center justify-end gap-2} py-2 px-4 rounded-md flex items-center justify-end gap-2`}
-										onClick={() => handleView(item?.uuid)}
+										className="border border-green-600 bg-green-100 text-green-600 hover:bg-green-600 hover:text-white py-2 px-4 rounded-md flex items-center justify-center"
+										onClick={() => handleAccept(item?.uuid)}
 									>
-										View
+										Accept
+										{loadingReservationId === item?.uuid ? <Spinner /> : null}
+									</button>
+									<button
+										className="border border-red-600 bg-red-100 text-red-600 hover:bg-red-600 hover:text-white py-2 px-4 rounded-md flex items-center justify-center"
+										onClick={() => handleReject(item?.uuid)}
+									>
+										Reject
 										{loadingReservationId === item?.uuid ? <Spinner /> : null}
 									</button>
 								</>
-							) : (
-								<button
-									className="border border-green-600 text-green-600 hover:bg-green-600 hover:text-white py-2 px-4 rounded-md flex items-center gap-2"
-									onClick={() => handleView(item?.uuid)}
-								>
-									View
-									{isLoading && <Spinner />}
-								</button>
-							)}
+							) : null}
 						</div>
 					</div>
 				))

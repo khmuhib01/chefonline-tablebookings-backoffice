@@ -69,7 +69,6 @@ export default function RestaurantSignIn() {
 
 				if (response && response.data && response.data.status) {
 					const userType = response.data.user_type;
-					console.log('userType', userType);
 					login(response, userType);
 
 					// Store token securely
@@ -84,11 +83,14 @@ export default function RestaurantSignIn() {
 					setPassword('');
 
 					// Navigate based on user type
-					if (userType === 'admin') {
-						setIsPopupOpen(true);
-						setErrorMessage('You are not authorized to access this page.');
+					if (userType === 'admin' || userType === 'staff') {
+						navigate('/dashboard');
+						// setIsPopupOpen(true);
+						// setErrorMessage("You don't have permission to access this page.");
 					} else if (userType === 'super_admin') {
 						navigate('/dashboard');
+						// setIsPopupOpen(true);
+						// setErrorMessage("You don't have permission to access this page.");
 					} else {
 						navigate('/'); // Default route or home
 					}

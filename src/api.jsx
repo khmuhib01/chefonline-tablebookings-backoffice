@@ -186,27 +186,43 @@ const getReservationListByGuestId = async (guestId) => {
 const getGuestReservationInfo = async (restaurantId) => {
 	const token = getToken();
 
-    console.log('token', token);
+	const headers = {
+		'Content-Type': 'application/json',
+		Authorization: `Bearer ${token}`,
+	};
 
-		const headers = {
-			'Content-Type': 'application/json',
-			Authorization: `Bearer ${token}`,
-		};
+	try {
+		const {data} = await api.get(`secure/restaurant/reservation-for-restaurant?rest_uuid=${restaurantId}&params=info`, {
+			headers,
+		});
 
-		try {
-			const {data} = await api.get(
-				`secure/restaurant/reservation-for-restaurant?rest_uuid=${restaurantId}&params=info`,
-				{
-					headers,
-				}
-			);
+		return data;
+	} catch (error) {
+		console.error('Error fetching guest reservation info:', error);
+		throw error;
+	}
+};
 
-			console.log('data', data);
-			return data;
-		} catch (error) {
-			console.error('Error fetching guest reservation info:', error);
-			throw error;
-		}
+const postReservationRemove = async (restaurantId, reservationId, userId) => {
+	const token = getToken();
+
+	const headers = {
+		'Content-Type': 'application/json',
+		Authorization: `Bearer ${token}`,
+	};
+
+	try {
+		const {data} = await api.get(
+			`secure/restaurant/reservation-for-restaurant?rest_uuid=${restaurantId}&params=cancel&uuid=${reservationId}&user_uuid=${userId}`,
+			{
+				headers,
+			}
+		);
+		return data;
+	} catch (error) {
+		console.error('Error checking out:', error);
+		throw error;
+	}
 };
 
 const getCheckIn = async (restaurantId, reservationId, checkInTime) => {
@@ -220,6 +236,50 @@ const getCheckIn = async (restaurantId, reservationId, checkInTime) => {
 	try {
 		const {data} = await api.get(
 			`secure/restaurant/reservation-for-restaurant?rest_uuid=${restaurantId}&params=checkin&checkin_time=${checkInTime}&uuid=${reservationId}`,
+			{
+				headers,
+			}
+		);
+		return data;
+	} catch (error) {
+		console.error('Error checking in:', error);
+		throw error;
+	}
+};
+
+const getAccept = async (restaurantId, reservationId, userId) => {
+	const token = getToken();
+
+	const headers = {
+		'Content-Type': 'application/json',
+		Authorization: `Bearer ${token}`,
+	};
+
+	try {
+		const {data} = await api.get(
+			`secure/restaurant/reservation-for-restaurant?rest_uuid=${restaurantId}&params=accept&uuid=${reservationId}&user_uuid=${userId}`,
+			{
+				headers,
+			}
+		);
+		return data;
+	} catch (error) {
+		console.error('Error checking in:', error);
+		throw error;
+	}
+};
+
+const getReject = async (restaurantId, reservationId, userId) => {
+	const token = getToken();
+
+	const headers = {
+		'Content-Type': 'application/json',
+		Authorization: `Bearer ${token}`,
+	};
+
+	try {
+		const {data} = await api.get(
+			`secure/restaurant/reservation-for-restaurant?rest_uuid=${restaurantId}&params=reject&uuid=${reservationId}&user_uuid=${userId}`,
 			{
 				headers,
 			}
@@ -605,10 +665,6 @@ const createMenuItem = async (data) => {
 		Authorization: `Bearer ${token}`,
 	};
 
-	// Logging data for debugging purposes
-	console.log('data', data);
-	console.log('token', token);
-
 	try {
 		// Send POST request
 		const {data: response} = await api.post('/secure/restaurant-function/menus', data, {headers});
@@ -619,7 +675,6 @@ const createMenuItem = async (data) => {
 	}
 };
 
-
 const restaurantUserList = async (data) => {
 	const token = getToken();
 	const headers = {
@@ -627,8 +682,6 @@ const restaurantUserList = async (data) => {
 		Authorization: `Bearer ${token}`,
 	};
 
-	console.log('data', data);
-	console.log('token', token);
 	try {
 		const {data: response} = await api.post('/secure/restaurant/restaurants-users', data, {headers});
 		return response;
@@ -661,8 +714,9 @@ const restaurantMenuImageOrPdf = async (data) => {
 		'Content-Type': 'multipart/form-data',
 		Authorization: `Bearer ${token}`,
 	};
+
 	try {
-		const {data: response} = await api.post('/secure/restaurant-function/menus-photo-upload', data, {headers});
+		const {data: response} = await api.post('/user/menus-photo-upload', data, {headers});
 		return response;
 	} catch (error) {
 		console.error('Error creating restaurant:', error);
@@ -716,6 +770,8 @@ export {
 	postGuestLogout,
 	getGuestReservationInfo,
 	getCheckIn,
+	getAccept,
+	getReject,
 	getCheckedOut,
 	getRemoveReservation,
 	getReservationListByGuestId,
@@ -747,4 +803,5 @@ export {
 	totalGuestList,
 	totalReservationList,
 	restaurantMenuImageOrPdf,
+	postReservationRemove,
 };

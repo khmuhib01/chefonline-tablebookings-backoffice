@@ -14,16 +14,17 @@ const AuthProviderRestaurant = ({children}) => {
 		// Helper function to safely parse JSON
 		const safeJsonParse = (item) => {
 			try {
-				return JSON.parse(item);
+				return item ? JSON.parse(item) : null;
 			} catch (error) {
+				console.error('Error parsing JSON from localStorage:', error);
 				return null;
 			}
 		};
 
-		// Check if user is authenticated by looking for a token in localStorage
+		// Retrieve authentication details from localStorage
 		const storedUser = safeJsonParse(localStorage.getItem('user'));
-		const storedUserType = localStorage.getItem('userType');
-		const storedUserToken = localStorage.getItem('userToken');
+		const storedUserType = localStorage.getItem('userType') || null;
+		const storedUserToken = localStorage.getItem('userToken') || null;
 
 		if (storedUser && storedUserType && storedUserToken) {
 			setIsAuthenticated(true);
@@ -32,14 +33,20 @@ const AuthProviderRestaurant = ({children}) => {
 			setUserToken(storedUserToken);
 		}
 
-		setLoading(false); // Set loading to false after check is done
+		setLoading(false); // Set loading to false after the check
 	}, []);
 
 	const login = (userData, type) => {
+		if (!userData || !userData.data || !userData.token) {
+			console.error('Invalid user data received during login:', userData);
+			return;
+		}
+
 		setIsAuthenticated(true);
 		setUser(userData.data);
 		setUserType(type);
 		setUserToken(userData.token);
+
 		localStorage.setItem('user', JSON.stringify(userData.data));
 		localStorage.setItem('userType', type);
 		localStorage.setItem('userToken', userData.token);
@@ -49,13 +56,13 @@ const AuthProviderRestaurant = ({children}) => {
 		try {
 			// Prepare data for guest logout
 			const data = {
-				uuid: user?.uuid,
-				token: userToken,
+				uuid: user?.uuid || null,
+				token: userToken || null,
 			};
 
-			// If UUID is present, perform guest logout
-			if (data?.uuid) {
-				const response = await postUserLogout(data);
+			// Call logout API only if UUID and token are available
+			if (data.uuid && data.token) {
+				await postUserLogout(data);
 			}
 
 			// Clear authentication data

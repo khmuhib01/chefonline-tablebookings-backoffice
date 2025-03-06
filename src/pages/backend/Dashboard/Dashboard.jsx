@@ -2,6 +2,7 @@ import React, {useContext, useEffect, useState} from 'react';
 import PageTitle from '../../../components/PageTitle';
 import {getRestaurantList, totalGuestList, totalReservationList} from '../../../api';
 import {AuthContextRestaurant} from './../../../context/AuthContextRestaurant';
+import {formatDate, formatTime} from '../../../utils/conversions';
 
 const Dashboard = () => {
 	const {user, userType, userToken} = useContext(AuthContextRestaurant);
@@ -50,18 +51,14 @@ const Dashboard = () => {
 
 	const today = new Date().toLocaleDateString('en-GB');
 
-	console.log('reservationList', data.reservationList);
-	console.log('user', user);
-
 	// for admin report
 	const todaysReservationForRestaurantAdmin = data.reservationList.filter(
 		(reservation) => reservation?.reservation_date === today && reservation?.restaurant?.uuid === user.res_uuid
 	);
 
-	const upcomingReservationsForRestaurantsAdmin = data.reservationList.filter((reservation) => {
-		const reservationDate = new Date(reservation.reservation_date.split('/').reverse().join('-'));
-		return reservationDate > new Date() && reservation?.restaurant.uuid === user.rest_uuid;
-	});
+	const upcomingReservationsForRestaurantsAdmin = data.reservationList.filter(
+		(reservation) => reservation?.reservation_date > today && reservation?.restaurant?.uuid === user.res_uuid
+	);
 
 	const completedReservationsForRestaurantsAdmin = data.reservationList.filter(
 		(reservation) => reservation?.status === 'completed' && reservation?.restaurant.uuid === user.rest_uuid
@@ -74,8 +71,6 @@ const Dashboard = () => {
 	const totalCustomersForRestaurantsOwnerAdmin = todaysReservationForRestaurantAdmin.reduce((total, reservation) => {
 		return total + parseInt(reservation.number_of_people, 10);
 	}, 0);
-
-	console.log('todaysReservationForRestaurantAdmin', todaysReservationForRestaurantAdmin);
 
 	// Update the reportData based on the userType and other computed values
 	const reportData =
@@ -195,67 +190,90 @@ const Dashboard = () => {
 				</div>
 
 				{/* Reservations Tables */}
-				<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-					<div className="p-4 bg-purple-100 rounded-lg shadow-md">
-						<h3 className="text-xl font-semibold mb-4">Today's Reservations</h3>
-						<table className="min-w-full w-full bg-white border border-gray-200">
-							<thead className="bg-gray-100 text-left">
-								<tr>
-									<th className="px-4 py-2 border">Serial No</th>
-									<th className="px-4 py-2 border">Reservation ID</th>
-									<th className="px-4 py-2 border">Customer Name</th>
-									<th className="px-4 py-2 border">Table Number</th>
-									<th className="px-4 py-2 border">Time</th>
-									<th className="px-4 py-2 border">Status</th>
-								</tr>
-							</thead>
-							<tbody>
-								{/* Loop through todaysReservationForRestaurantAdmin here to show the actual reservations */}
-								{todaysReservationForRestaurantAdmin.map((reservation, index) => (
-									<tr key={index} className="hover:bg-gray-50">
-										<td className="px-4 py-2 border">{index + 1}</td>
-										<td className="px-4 py-2 border">{reservation.reservation_id}</td>
-										<td className="px-4 py-2 border">{reservation.customer_name}</td>
-										<td className="px-4 py-2 border">{reservation.table_number}</td>
-										<td className="px-4 py-2 border">{reservation.time}</td>
-										<td className="px-4 py-2 border">{reservation.status}</td>
-									</tr>
-								))}
-							</tbody>
-						</table>
-					</div>
 
-					<div className="p-4 bg-blue-100 rounded-lg shadow-md">
-						<h3 className="text-xl font-semibold mb-4">Upcoming Reservations</h3>
-						<table className="min-w-full w-full bg-white border border-gray-200">
-							<thead className="bg-gray-100 text-left">
-								<tr>
-									<th className="px-4 py-2 border">Serial No</th>
-									<th className="px-4 py-2 border">Reservation ID</th>
-									<th className="px-4 py-2 border">Customer Name</th>
-									<th className="px-4 py-2 border">Table Number</th>
-									<th className="px-4 py-2 border">Date</th>
-									<th className="px-4 py-2 border">Time</th>
-									<th className="px-4 py-2 border">Status</th>
-								</tr>
-							</thead>
-							<tbody>
-								{/* Loop through upcomingReservationsForRestaurantsAdmin here to show the actual reservations */}
-								{upcomingReservationsForRestaurantsAdmin.map((reservation, index) => (
-									<tr key={index} className="hover:bg-gray-50">
-										<td className="px-4 py-2 border">{index + 1}</td>
-										<td className="px-4 py-2 border">{reservation.reservation_id}</td>
-										<td className="px-4 py-2 border">{reservation.customer_name}</td>
-										<td className="px-4 py-2 border">{reservation.table_number}</td>
-										<td className="px-4 py-2 border">{reservation.reservation_date}</td>
-										<td className="px-4 py-2 border">{reservation.time}</td>
-										<td className="px-4 py-2 border">{reservation.status}</td>
-									</tr>
-								))}
-							</tbody>
-						</table>
+				{userType !== 'super_admin' && (
+					<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+						{/* Today's Reservations Section */}
+						<div className="p-4 bg-purple-100 rounded-lg shadow-md min-h-[400px] flex flex-col">
+							<h3 className="text-xl font-semibold mb-4">Today's Reservations</h3>
+
+							{/* Scrollable Table */}
+							<div className="overflow-y-auto max-h-[300px]">
+								<table className="min-w-full w-full bg-white border border-gray-200">
+									<thead className="bg-gray-100 text-left sticky top-0">
+										<tr>
+											<th className="px-4 border">Serial No</th>
+											<th className="px-4 border">Reservation ID</th>
+											<th className="px-4 border">Customer Name</th>
+											<th className="px-4 border">Customer Phone</th>
+											<th className="px-4 border">Customer Email</th>
+											<th className="px-4 border">Table Number</th>
+											<th className="px-4 border">Time</th>
+											<th className="px-4 border">Status</th>
+										</tr>
+									</thead>
+									<tbody>
+										{todaysReservationForRestaurantAdmin.map((reservation, index) => (
+											<tr key={index} className="hover:bg-gray-50">
+												<td className="px-4 border">{index + 1}</td>
+												<td className="px-4 border">{reservation.reservation_id}</td>
+												<td className="px-4 border">
+													{reservation.guest_information.first_name} {reservation.guest_information.last_name}
+												</td>
+												<td className="px-4 border">{reservation.guest_information.phone}</td>
+												<td className="px-4 border">{reservation.guest_information.email}</td>
+												<td className="px-4 border">{reservation.table_master.table_name}</td>
+												<td className="px-4 border">{formatTime(reservation.start)}</td>
+												<td className="px-4 border capitalize">{reservation.status}</td>
+											</tr>
+										))}
+									</tbody>
+								</table>
+							</div>
+						</div>
+
+						{/* Upcoming Reservations Section */}
+						<div className="p-4 bg-blue-100 rounded-lg shadow-md min-h-[400px] flex flex-col">
+							<h3 className="text-xl font-semibold mb-4">Upcoming Reservations</h3>
+
+							{/* Scrollable Table */}
+							<div className="overflow-y-auto max-h-[300px]">
+								<table className="min-w-full w-full bg-white border border-gray-200">
+									<thead className="bg-gray-100 text-left sticky top-0">
+										<tr>
+											<th className="px-4 border">Serial No</th>
+											<th className="px-4 border">Reservation ID</th>
+											<th className="px-4 border">Customer Name</th>
+											<th className="px-4 border">Customer Phone</th>
+											<th className="px-4 border">Customer Email</th>
+											<th className="px-4 border">Table Number</th>
+											<th className="px-4 border">Date</th>
+											<th className="px-4 border">Time</th>
+											<th className="px-4 border">Status</th>
+										</tr>
+									</thead>
+									<tbody>
+										{upcomingReservationsForRestaurantsAdmin.map((reservation, index) => (
+											<tr key={index} className="hover:bg-gray-50">
+												<td className="px-4 border">{index + 1}</td>
+												<td className="px-4 border">{reservation.reservation_id}</td>
+												<td className="px-4 border">
+													{reservation.guest_information.first_name} {reservation.guest_information.last_name}
+												</td>
+												<td className="px-4 border">{reservation.guest_information.email}</td>
+												<td className="px-4 border">{reservation.guest_information.phone}</td>
+												<td className="px-4 border">{reservation.table_master.table_name}</td>
+												<td className="px-4 border">{reservation.reservation_date}</td>
+												<td className="px-4 border">{formatTime(reservation.start)}</td>
+												<td className="px-4 border capitalize">{reservation.status}</td>
+											</tr>
+										))}
+									</tbody>
+								</table>
+							</div>
+						</div>
 					</div>
-				</div>
+				)}
 			</div>
 		</>
 	);

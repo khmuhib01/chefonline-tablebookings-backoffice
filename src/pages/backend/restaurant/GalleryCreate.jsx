@@ -23,8 +23,6 @@ export default function GalleryCreate() {
 
 	const storeUser = useSelector((state) => state.user);
 
-	console.log('storeUser', storeUser);
-
 	const multiImageDropzone = useDropzone({
 		accept: {
 			'image/jpeg': [],
@@ -54,7 +52,6 @@ export default function GalleryCreate() {
 
 			try {
 				const response = await restaurantGallery(formData);
-				console.log('Gallery created:', response);
 				newUploadStatus[index] = 'uploaded';
 				fetchGallery();
 			} catch (error) {
@@ -109,7 +106,6 @@ export default function GalleryCreate() {
 
 		try {
 			const response = await restaurantGallery(data);
-			console.log('Deleted image:', response);
 			fetchGallery();
 		} catch (error) {
 			console.error('Error deleting image:', error);
